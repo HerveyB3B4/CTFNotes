@@ -1,7 +1,5 @@
----
-title: 逆向做题笔记
-date: 2024-04-04 13:01:52
-tags:
-  - WP
-category: CTF
----
+# 逆向做题笔记
+
+## 练习记录
+
+### [Reverse-easyre](https://buuoj.cn/challenges#easyre)

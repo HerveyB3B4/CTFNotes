@@ -1,6 +1,6 @@
 # 杂项做题笔记
 
-## 1 CTF工具使用
+## 1 工具使用
 
 ### 1.1  [stegsolve](http://www.caesum.com/handbook/Stegsolve.jar)
 
