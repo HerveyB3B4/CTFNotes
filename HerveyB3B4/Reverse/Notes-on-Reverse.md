@@ -349,3 +349,84 @@ print(f"The flag is: flag{flag}")
 ```plain
 flag{i_l0ve_you}
 ```
+
+### [Reverse-内涵的软件](https://buuoj.cn/challenges#内涵的软件)
+
+先用DIE查壳，这次是个PE32文件
+
+先运行一下程序
+
+```bash
+hervey@Hervey MINGW64 ~/Desktop
+$ ./70125468-0786-4705-bd91-87037f8f3e16.exe
+距离出现答案还有5秒，请耐心等待！
+距离出现答案还有4秒，请耐心等待！
+距离出现答案还有3秒，请耐心等待！
+距离出现答案还有2秒，请耐心等待！
+距离出现答案还有1秒，请耐心等待！
+距离出现答案还有0秒，请耐心等待！
+
+
+
+这里本来应该是答案的,但是粗心的程序员忘记把变量写进来了,你要不逆向试试看:(Y/N)
+Y
+OD吾爱破解或者IDA这些逆向软件都挺好的！
+hervey@Hervey MINGW64 ~/Desktop
+$ ./70125468-0786-4705-bd91-87037f8f3e16.exe
+距离出现答案还有5秒，请耐心等待！
+距离出现答案还有4秒，请耐心等待！
+距离出现答案还有3秒，请耐心等待！
+距离出现答案还有2秒，请耐心等待！
+距离出现答案还有1秒，请耐心等待！
+距离出现答案还有0秒，请耐心等待！
+
+
+
+这里本来应该是答案的,但是粗心的程序员忘记把变量写进来了,你要不逆向试试看:(Y/N)
+N
+那没办法了，猜是猜不出的．
+```
+
+猜测 `flag` 应该要到源程序中找
+
+使用IDA打开`70125468-0786-4705-bd91-87037f8f3e16.exe`文件，找到程序的入口`main`:
+
+```c
+int __cdecl main_0(int argc, const char **argv, const char **envp)
+{
+  char v4[4]; // [esp+4Ch] [ebp-Ch] BYREF
+  const char *v5; // [esp+50h] [ebp-8h]
+  int v6; // [esp+54h] [ebp-4h]
+
+  v6 = 5;
+  v5 = "DBAPP{49d3c93df25caad81232130f3d2ebfad}";
+  while ( v6 >= 0 )
+  {
+    printf(&byte_4250EC, v6);
+    sub_40100A();
+    --v6;
+  }
+  printf(asc_425088);
+  v4[0] = 1;
+  scanf("%c", v4);
+  if ( v4[0] == 'Y' )
+  {
+    printf(aOd);
+    return sub_40100A();
+  }
+  else
+  {
+    if ( v4[0] == 'N' )
+      printf(&byte_425034);
+    else
+      printf(&byte_42501C);
+    return sub_40100A();
+  }
+}
+```
+
+看到有一串字符串 `v5 = "DBAPP{49d3c93df25caad81232130f3d2ebfad}";` 由此获得 `flag`
+
+```plain
+flag{49d3c93df25caad81232130f3d2ebfad}
+```
