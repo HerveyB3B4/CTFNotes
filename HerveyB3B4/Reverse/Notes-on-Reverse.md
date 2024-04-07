@@ -430,3 +430,127 @@ int __cdecl main_0(int argc, const char **argv, const char **envp)
 ```plain
 flag{49d3c93df25caad81232130f3d2ebfad}
 ```
+
+### [Reverse-新年快乐](https://buuoj.cn/challenges#新年快乐)
+
+惯例先用 DIE 查壳，可以发现有一层 UPX 壳
+
+![Reverse-新年快乐](./Notes-on-Reverse/Reverse-新年快乐.png)
+
+使用 [upx 工具](https://upx.github.io/) 进行脱壳
+
+```shell
+┌──(hervey㉿Hervey)-[/mnt/c/Users/hervey/Desktop]
+└─$ upx -d ./新年快乐.exe
+                       Ultimate Packer for eXecutables
+                          Copyright (C) 1996 - 2024
+UPX 4.2.2       Markus Oberhumer, Laszlo Molnar & John Reiser    Jan 3rd 2024
+
+        File size         Ratio      Format      Name
+   --------------------   ------   -----------   -----------
+     27807 <-     21151   76.06%    win32/pe     新年快乐.exe
+
+Unpacked 1 file.
+```
+
+接下来就可以使用 IDA/Ghidra 等工具进行逆向分析了，这里用 IDA 打开
+
+```c
+int __cdecl main(int argc, const char **argv, const char **envp)
+{
+  char Str2[14]; // [esp+12h] [ebp-3Ah] BYREF
+  char Str1[44]; // [esp+20h] [ebp-2Ch] BYREF
+
+  __main();
+  strcpy(Str2, "HappyNewYear!");
+  memset(Str1, 0, 32);
+  printf("please input the true flag:");
+  scanf("%s", Str1);
+  if ( !strncmp(Str1, Str2, strlen(Str2)) )
+    return puts("this is true flag!");
+  else
+    return puts("wrong!");
+}
+```
+
+分析这段程序可以知道 Str2 就是 flag ，其值为 `HappyNewYear!`，由此得到 flag
+
+```plain
+flag{HappyNewYear!}
+```
+
+### [Reverse-xor](https://buuoj.cn/challenges#xor)
+
+先用 DIE 查壳，可以发现是 MacOS x86-64 程序
+
+![Reverse-xor-1](./Notes-on-Reverse/Reverse-xor-1.png)
+
+使用 IDA64 进行静态分析
+
+```c
+int __cdecl main(int argc, const char **argv, const char **envp)
+{
+  int i; // [rsp+2Ch] [rbp-124h]
+  char __b[264]; // [rsp+40h] [rbp-110h] BYREF
+
+  memset(__b, 0, 0x100uLL);
+  printf("Input your flag:\n");
+  get_line(__b, 256LL);
+  if ( strlen(__b) != 33 )
+    goto LABEL_7;
+  for ( i = 1; i < 33; ++i )
+    __b[i] ^= __b[i - 1];
+  if ( !strncmp(__b, global, 041uLL) )
+    printf("Success");
+  else
+LABEL_7:
+    printf("Failed");
+  return 0;
+}
+```
+
+这段程序的逻辑是输入 `flag` ，长度要求 33 位，对该字符串进行前缀异或和的操作后与 `global` 变量进行对比，一致输出 `Success` ，不一致则输出 `Failed` 。
+
+点击 `global` 跳转到静态变量区，可以得到 `global` 变量的值为
+
+```plain
+'f',0Ah,'k',0Ch,'w&O.@',11h,'x',0Dh,'Z;U',11h,'p',19h,'F',1Fh,'v"M#D',0Eh,'g',6,'h',0Fh,'G2O',0
+```
+
+![Reverse-xor-2](./Notes-on-Reverse/Reverse-xor-2.png)
+
+根据异或运算的性质，我们对前缀异或和的操作进行逆向，即再进行一次邻项差分以解密 flag，使用如下 python 代码实现这一过程。
+
+```python
+text = ['f', 0x0A, 'k', 0x0C, 'w', '&', 'O', '.', '@', 0x11, 'x', 0xD, 'Z', ';', 'U', 0x11, 'p', 0x19, 'F', 0x1F, 'v', '"', 'M', '#', 'D', 0x0E, 'g', 6, 'h', 0x0F, 'G', '2', 'O' ]
+flag = "f"
+
+for i in range(len(text)):
+    if isinstance   (text[i], str):
+        text[i] = ord(text[i])
+
+for i in range(len(text) - 1):
+    flag = flag + chr((text[i] ^ text[i + 1]))
+
+print(flag)
+```
+
+运行以上脚本即可获得 flag
+
+```plain
+┌──(hervey㉿Hervey)-[/mnt/c/Users/hervey/Desktop]
+└─$ python3 ./xor.py
+flag{QianQiuWanDai_YiTongJiangHu}
+```
+
+### [Reverse-helloword](https://buuoj.cn/challenges#helloword)
+
+下载下来后发现是个 apk 文件，使用 jadx-gui 工具打开，找到 `com.example.helloworld` 下的 `MainActivity`
+
+![Reverse-helloword](./Notes-on-Reverse/Reverse-helloword.png)
+
+在 `onCreate()` 函数中将 flag 与另一个字符串进行对比，由此我们可以直接获得 flag
+
+```plain
+flag{7631a988259a00816deda84afb29430a}
+```
