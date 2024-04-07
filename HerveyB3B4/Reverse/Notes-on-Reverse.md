@@ -545,9 +545,42 @@ flag{QianQiuWanDai_YiTongJiangHu}
 
 ### [Reverse-helloword](https://buuoj.cn/challenges#helloword)
 
-下载下来后发现是个 apk 文件，使用 jadx-gui 工具打开，找到 `com.example.helloworld` 下的 `MainActivity`
+下载下来后发现是个 apk 文件，使用 jadx-gui 工具打开，找到 `com.example.helloworld` 下的 `MainActivity` ，得到逆向后的代码为
 
-![Reverse-helloword](./Notes-on-Reverse/Reverse-helloword.png)
+```java
+package com.example.helloword;
+
+import android.os.Bundle;
+import android.support.v7.app.ActionBarActivity;
+import android.view.Menu;
+import android.view.MenuItem;
+
+/* loaded from: classes.dex */
+public class MainActivity extends ActionBarActivity {
+    /* JADX INFO: Access modifiers changed from: protected */
+    @Override // android.support.v7.app.ActionBarActivity, android.support.v4.app.FragmentActivity, android.app.Activity
+    public void onCreate(Bundle savedInstanceState) {
+        super.onCreate(savedInstanceState);
+        setContentView(R.layout.activity_main);
+        "flag{7631a988259a00816deda84afb29430a}".compareTo("xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx");
+    }
+
+    @Override // android.app.Activity
+    public boolean onCreateOptionsMenu(Menu menu) {
+        getMenuInflater().inflate(R.menu.main, menu);
+        return true;
+    }
+
+    @Override // android.app.Activity
+    public boolean onOptionsItemSelected(MenuItem item) {
+        int id = item.getItemId();
+        if (id == R.id.action_settings) {
+            return true;
+        }
+        return super.onOptionsItemSelected(item);
+    }
+}
+```
 
 在 `onCreate()` 函数中将 flag 与另一个字符串进行对比，由此我们可以直接获得 flag
 
