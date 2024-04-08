@@ -483,8 +483,6 @@ flag{HappyNewYear!}
 
 先用 DIE 查壳，可以发现是 MacOS x86-64 程序
 
-![Reverse-xor-1](./Notes-on-Reverse/Reverse-xor-1.png)
-
 使用 IDA64 进行静态分析
 
 ```c
@@ -517,7 +515,7 @@ LABEL_7:
 'f',0Ah,'k',0Ch,'w&O.@',11h,'x',0Dh,'Z;U',11h,'p',19h,'F',1Fh,'v"M#D',0Eh,'g',6,'h',0Fh,'G2O',0
 ```
 
-![Reverse-xor-2](./Notes-on-Reverse/Reverse-xor-2.png)
+![Reverse-xor](./Notes-on-Reverse/Reverse-xor.png)
 
 根据异或运算的性质，我们对前缀异或和的操作进行逆向，即再进行一次邻项差分以解密 flag，使用如下 python 代码实现这一过程。
 
@@ -586,4 +584,319 @@ public class MainActivity extends ActionBarActivity {
 
 ```plain
 flag{7631a988259a00816deda84afb29430a}
+```
+
+### [Reverse-不一样的flag](https://buuoj.cn/challenges#不一样的flag)
+
+使用 DIE 进行分析，发现是一个 PE32 文件
+
+使用 IDA 打开，进入主程序
+
+```c
+int __cdecl __noreturn main(int argc, const char **argv, const char **envp)
+{
+  _BYTE v3[29]; // [esp+17h] [ebp-35h] BYREF
+  int v4; // [esp+34h] [ebp-18h]
+  int v5; // [esp+38h] [ebp-14h] BYREF
+  int i; // [esp+3Ch] [ebp-10h]
+  _BYTE v7[12]; // [esp+40h] [ebp-Ch] BYREF
+
+  __main();
+  v3[26] = 0;
+  *(_WORD *)&v3[27] = 0;
+  v4 = 0;
+  strcpy(v3, "*11110100001010000101111#");
+  while ( 1 )
+  {
+    puts("you can choose one action to execute");
+    puts("1 up");
+    puts("2 down");
+    puts("3 left");
+    printf("4 right\n:");
+    scanf("%d", &v5);
+    if ( v5 == 2 )
+    {
+      ++*(_DWORD *)&v3[25];
+    }
+    else if ( v5 > 2 )
+    {
+      if ( v5 == 3 )
+      {
+        --v4;
+      }
+      else
+      {
+        if ( v5 != 4 )
+LABEL_13:
+          exit(1);
+        ++v4;
+      }
+    }
+    else
+    {
+      if ( v5 != 1 )
+        goto LABEL_13;
+      --*(_DWORD *)&v3[25];
+    }
+    for ( i = 0; i <= 1; ++i )
+    {
+      if ( *(_DWORD *)&v3[4 * i + 25] >= 5u )
+        exit(1);
+    }
+    if ( v7[5 * *(_DWORD *)&v3[25] - 41 + v4] == '1' )
+      exit(1);
+    if ( v7[5 * *(_DWORD *)&v3[25] - 41 + v4] == '#' )
+    {
+      puts("\nok, the order you enter is the flag!");
+      exit(0);
+    }
+  }
+}
+```
+
+通过 `printf()` 函数输出信息以及大体的程序框架可以看出这是一道迷宫逆向问题，迷宫的大小为 $5 \times 5$ ，起点位于位置 $(0, 0)$ ，终点位置的字符是 `#` ，`v3` 为代表迷宫图的字符串，处理后得到迷宫如下:
+
+```plain
+*1111
+01000
+01010
+00010
+1111#
+```
+
+迷宫图比较简单所以没必要用搜索跑了，直接手动输入验证一下就好了，由此获得 flag
+
+```plain
+flag{222441144222}
+```
+
+### [Reverse-SimpleRev](https://buuoj.cn/challenges#SimpleRev)
+
+使用 DIE 进行分析，发现是一个 Ubuntu Linux AMD64 文件
+
+使用 IDA 打开后进入主程序
+
+```c
+int __cdecl __noreturn main(int argc, const char **argv, const char **envp)
+{
+  int v3; // eax
+  char v4; // [rsp+Fh] [rbp-1h]
+
+  while ( 1 )
+  {
+    while ( 1 )
+    {
+      printf("Welcome to CTF game!\nPlease input d/D to start or input q/Q to quit this program: ");
+      v4 = getchar();
+      if ( v4 != 'd' && v4 != 'D' )
+        break;
+      Decry();
+    }
+    if ( v4 == 'q' || v4 == 'Q' )
+      Exit("Welcome to CTF game!\nPlease input d/D to start or input q/Q to quit this program: ", argv);
+    puts("Input fault format!");
+    v3 = getchar();
+    putchar(v3);
+  }
+}
+```
+
+可以发现 `main()` 函数只是一个菜单页，程序真正的主体逻辑其实在 `Decry()` 函数中，双击进入该函数
+
+```c
+unsigned __int64 Decry()
+{
+  char v1; // [rsp+Fh] [rbp-51h]
+  int v2; // [rsp+10h] [rbp-50h]
+  int v3; // [rsp+14h] [rbp-4Ch]
+  int i; // [rsp+18h] [rbp-48h]
+  int v5; // [rsp+1Ch] [rbp-44h]
+  char src[8]; // [rsp+20h] [rbp-40h] BYREF
+  __int64 v7; // [rsp+28h] [rbp-38h]
+  int v8; // [rsp+30h] [rbp-30h]
+  __int64 v9[2]; // [rsp+40h] [rbp-20h] BYREF
+  int v10; // [rsp+50h] [rbp-10h]
+  unsigned __int64 v11; // [rsp+58h] [rbp-8h]
+
+  v11 = __readfsqword(0x28u);
+  *(_QWORD *)src = 'SLCDN';
+  v7 = 0LL;
+  v8 = 0;
+  v9[0] = 'wodah';
+  v9[1] = 0LL;
+  v10 = 0;
+  text = join(key3, (const char *)v9);
+  strcpy(key, key1);
+  strcat(key, src);
+  v2 = 0;
+  v3 = 0;
+  getchar();
+  v5 = strlen(key);
+  for ( i = 0; i < v5; ++i )
+  {
+    if ( key[v3 % v5] > '@' && key[v3 % v5] <= 'Z' )
+      key[i] = key[v3 % v5] + ' ';
+    ++v3;
+  }
+  printf("Please input your flag:");
+  while ( 1 )
+  {
+    v1 = getchar();
+    if ( v1 == '\n' )
+      break;
+    if ( v1 == ' ' )
+    {
+      ++v2;
+    }
+    else
+    {
+      if ( v1 <= '`' || v1 > 'z' )
+      {
+        if ( v1 > '@' && v1 <= 'Z' )
+        {
+          str2[v2] = (v1 - '\'' - key[v3 % v5] + 'a') % 26 + 'a';
+          ++v3;
+        }
+      }
+      else
+      {
+        str2[v2] = (v1 - '\'' - key[v3 % v5] + 'a') % 26 + 'a';
+        ++v3;
+      }
+      if ( !(v3 % v5) )
+        putchar(' ');
+      ++v2;
+    }
+  }
+  if ( !strcmp(text, str2) )
+    puts("Congratulation!\n");
+  else
+    puts("Try again!\n");
+  return __readfsqword(0x28u) ^ v11;
+}
+```
+
+这段程序本质上就是一个字符串加密程序，我们分开来看
+
+```c
+*(_QWORD *)src = 'SLCDN';
+v7 = 0LL;
+v8 = 0;
+v9[0] = 'wodah';
+v9[1] = 0LL;
+v10 = 0;
+text = join(key3, (const char *)v9);
+strcpy(key, key1);
+strcat(key, src);
+```
+
+这一段程序中， `join()` 函数的作用是拼接两段字符串并返回， `strcpy()` 的作用是复制字符串， `strcat()` 的作用是往字符串后拼接新字符串
+
+其中 `key1` 和 `key3` 的值在静态数据区，双击进入即可找到，而 `v9` 和 `src` 在函数中有定义 **(注意需要倒过来)**，右键将 `Hex` 转为 `Char` 即可获得
+
+简单来说，上面的代码构造了这两个字符串:
+
+```python
+src = "NDCLS"
+v9 = "hadow"
+key1 = "ADSFK"
+key3 = "kills"
+
+text = key3 + v9 # text = "killshadow"
+key = key1 + src # key = "ADSFKNDCLS"
+```
+
+我们接着往下看
+
+```c
+v5 = strlen(key);
+for ( i = 0; i < v5; ++i )
+{
+  if ( key[v3 % v5] > '@' && key[v3 % v5] <= 'Z' )
+    key[i] = key[v3 % v5] + 32;
+  ++v3;
+}
+```
+
+这段程序的作用是遍历了字符数组 `key` 的每一位并将大写字母转为了小写字母 ( `'a' - 'A' == 32` )
+
+接下来就是程序的主体部分了
+
+```c
+printf("Please input your flag:");
+while ( 1 )
+{
+  v1 = getchar();
+  if ( v1 == '\n' )
+    break;
+  if ( v1 == ' ' )
+  {
+    ++v2;
+  }
+  else
+  {
+    if ( v1 <= '`' || v1 > 'z' )
+    {
+      if ( v1 > '@' && v1 <= 'Z' )
+      {
+        str2[v2] = (v1 - '\'' - key[v3 % v5] + 'a') % 26 + 'a';
+        ++v3;
+      }
+    }
+    else
+    {
+      str2[v2] = (v1 - '\'' - key[v3 % v5] + 'a') % 26 + 'a';
+      ++v3;
+    }
+    if ( !(v3 % v5) )
+      putchar(' ');
+    ++v2;
+  }
+}
+if ( !strcmp(text, str2) )
+  puts("Congratulation!\n");
+else
+  puts("Try again!\n");
+```
+
+可以看到程序的主体部分以单个字符的形式读入了一行字符串 (以 `'\n'` 结尾)，并对每一位进行了位移加密处理(虽然分了大小写两种情况但是处理过程其实一样，可能是故意写复杂的?)，加密过程相当于如下代码
+
+```c
+// 读入字符串 flag
+for (int i = 0; i < strlen(flag); i++)
+  if (isalpha(flag[i]))
+    str2[i] = (flag[i] - 39 - key[i] + 97) % 26 + 97;
+```
+
+最后就是将处理得到的 str2 与前面生成的 text 进行校验，一致输出 `Congratulation!` ，不一致输出 `Try again!`
+
+可以通过下面这个 python 脚本逆向上面的解密过程
+
+```python
+src = "NDCLS"
+v9 = "hadow"
+key1 = "ADSFK"
+key3 = "kills"
+
+text = key3 + v9 # text = "killshadow"
+key = key1 + src # key = "ADSFKNDCLS"
+
+key = key.lower()
+
+flag = ""
+for i in range(10):
+    for c in range(256):
+        if chr(c).isalpha():
+            ch = chr((c - 39 - ord(key[i]) + 97) % 26 + 97)
+            if text[i] == ch:
+                flag += chr(c)
+                break
+
+print(flag)
+```
+
+进而获得 flag
+
+```plain
+flag{KLDQCUDFZO}
 ```
