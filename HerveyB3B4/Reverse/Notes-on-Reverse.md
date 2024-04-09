@@ -543,7 +543,7 @@ flag{QianQiuWanDai_YiTongJiangHu}
 
 ### [Reverse-helloword](https://buuoj.cn/challenges#helloword)
 
-下载下来后发现是个 apk 文件，使用 jadx-gui 工具打开，找到 `com.example.helloworld` 下的 `MainActivity` ，得到逆向后的代码为
+下载下来后发现是个 apk 文件，使用 jadx-gui 工具进行反编译，找到 `com.example.helloworld` 下的 `MainActivity` ，得到逆向后的代码为
 
 ```java
 package com.example.helloword;
@@ -895,8 +895,217 @@ for i in range(10):
 print(flag)
 ```
 
-进而获得 flag
+运行结果如下
+
+```shell
+┌──(hervey㉿Hervey)-[/mnt/c/Users/hervey/Desktop]
+└─$ python3 ./dec.py
+KLDQCUDFZO
+```
+
+进而获得 flag :
 
 ```plain
 flag{KLDQCUDFZO}
+```
+
+### [Reverse-[GXYCTF2019]luck_guy](https://buuoj.cn/challenges#[GXYCTF2019]luck_guy)
+
+使用 DIE 进行分析，发现是一个 ELF64 文件
+
+使用 IDA64 打开，进入主程序
+
+```c
+int __cdecl main(int argc, const char **argv, const char **envp)
+{
+  int v4; // [rsp+14h] [rbp-Ch] BYREF
+  unsigned __int64 v5; // [rsp+18h] [rbp-8h]
+
+  v5 = __readfsqword(0x28u);
+  welcome();
+  puts("_________________");
+  puts("try to patch me and find flag");
+  v4 = 0;
+  puts("please input a lucky number");
+  __isoc99_scanf("%d", &v4);
+  patch_me(v4);
+  puts("OK,see you again");
+  return 0;
+}
+```
+
+可以发现主程序在 `patch_me()` 函数里，双击进入
+
+```c
+int __fastcall patch_me(int a1)
+{
+  if ( a1 % 2 == 1 )
+    return puts("just finished");
+  else
+    return get_flag();
+}
+```
+
+通过函数名可以猜测得到 flag 的程序 `get_flag()` 函数里，再次双击进入
+
+```c
+unsigned __int64 get_flag()
+{
+  unsigned int v0; // eax
+  int i; // [rsp+4h] [rbp-3Ch]
+  int j; // [rsp+8h] [rbp-38h]
+  __int64 s; // [rsp+10h] [rbp-30h] BYREF
+  char v5; // [rsp+18h] [rbp-28h]
+  unsigned __int64 v6; // [rsp+38h] [rbp-8h]
+
+  v6 = __readfsqword(0x28u);
+  v0 = time(0LL);
+  srand(v0);
+  for ( i = 0; i <= 4; ++i )
+  {
+    switch ( rand() % 200 )
+    {
+      case 1:
+        puts("OK, it's flag:");
+        memset(&s, 0, 050uLL);
+        strcat((char *)&s, f1);
+        strcat((char *)&s, &f2);
+        printf("%s", (const char *)&s);
+        break;
+      case 2:
+        printf("Solar not like you");
+        break;
+      case 3:
+        printf("Solar want a girlfriend");
+        break;
+      case 4:
+        s = 0x7F666F6067756369LL;
+        v5 = 0;
+        strcat(&f2, (const char *)&s);
+        break;
+      case 5:
+        for ( j = 0; j <= 7; ++j )
+        {
+          if ( j % 2 == 1 )
+            *(&f2 + j) -= 2;
+          else
+            --*(&f2 + j);
+        }
+        break;
+      default:
+        puts("emmm,you can't find flag 23333");
+        break;
+    }
+  }
+  return __readfsqword(0x28u) ^ v6;
+}
+```
+
+分析一下这段程序，可以发现程序随机生成了 5 个随机数
+
+1. 在 `case 4` 中，程序将 字符串 `s` 插入 `f2` 中
+2. 在 `case 5` 中，对 f2 下标奇数位迁移 2 位，偶数位前移 1 位
+3. 在 `case 1` 中，拼接 f1 和 f2 得到 flag
+
+其中, s 为一段固定值，可以对 `0x7F666F6067756369LL` 进行逆序后转为字符串，在静态数据区可以获得 f1 为字符串 `"GXY{do_not_"`
+
+依照上面的顺序我们可以编写下面的 python 脚本获得 flag
+
+```python
+f1 = "GXY{do_not_"
+f2 = [0x7F, 0x66, 0x6F, 0x60, 0x67, 0x75, 0x63, 0x69][::-1]
+
+flag = f1;
+for i in range(len(f2)):
+    if i % 2 == 1:
+        flag = flag + chr(f2[i] - 2)
+    else:
+        flag = flag + chr(f2[i] - 1)
+
+print(flag)
+```
+
+运行结果如下
+
+```shell
+┌──(hervey㉿Hervey)-[/mnt/c/Users/hervey/Desktop]
+└─$ python3 ./dec.py
+GXY{do_not_hate_me}
+```
+
+进而获得 flag
+
+```plain
+flag{do_not_hate_me}
+```
+
+### [Reverse-Java逆向解密](https://buuoj.cn/challenges#Java逆向解密)
+
+下载文件后发现这是一个 `.class` 文件，使用 jd-gui 工具进行反编译，得到如下程序
+
+```java
+import java.util.ArrayList;
+import java.util.Scanner;
+
+public class Reverse {
+  public static void main(String[] args) {
+    Scanner s = new Scanner(System.in);
+    System.out.println("Please input the flag :");
+    String str = s.next();
+    System.out.println("Your input is :");
+    System.out.println(str);
+    char[] stringArr = str.toCharArray();
+    Encrypt(stringArr);
+  }
+  
+  public static void Encrypt(char[] arr) {
+    ArrayList<Integer> Resultlist = new ArrayList<>();
+    for (int i = 0; i < arr.length; i++) {
+      int result = arr[i] + 64 ^ 0x20;
+      Resultlist.add(Integer.valueOf(result));
+    } 
+    int[] KEY = { 
+        180, 136, 137, 147, 191, 137, 147, 191, 148, 136, 
+        133, 191, 134, 140, 129, 135, 191, 65 };
+    ArrayList<Integer> KEYList = new ArrayList<>();
+    for (int j = 0; j < KEY.length; j++)
+      KEYList.add(Integer.valueOf(KEY[j])); 
+    System.out.println("Result: ");
+    if (Resultlist.equals(KEYList)) {
+      System.out.println("Congratulations!");
+    } else {
+      System.err.println("Error!");
+    } 
+  }
+}
+```
+
+这段程序从控制台读入了一个字符串 str 后传入 `Encrypt(char[] arr)` 函数进行校验
+
+在 `Encrypt(char[] arr)` 函数中，先对传入的字符数组 arr 进行加密，然后和 KEY 进行对比，如果相同则输出 `Congratulations!` 否则输出 `Error!`
+
+我们对 `Encrypt(char[] arr)` 进行逆向操作，使用如下 python 解密 flag (注意运算符的优先顺序，源程序中 `+` 的优先级高于 `^` ，所以解密程序应该先进行异或操作再进行减法运算)
+
+```python
+KEY = [180, 136, 137, 147, 191, 137, 147, 191, 148, 136, 133, 191, 134, 140, 129, 135, 191, 65]
+
+flag = ""
+for i in range(len(KEY)):
+    flag = flag + chr((KEY[i] ^ 0x20) - 64)
+
+print(flag)
+```
+
+运行结果如下
+
+```shell
+┌──(hervey㉿Hervey)-[/mnt/c/Users/hervey/Desktop]
+└─$ python3 ./dec.py
+This_is_the_flag_!
+```
+
+进而获得 flag :
+
+```plain
+flag{This_is_the_flag_!}
 ```
