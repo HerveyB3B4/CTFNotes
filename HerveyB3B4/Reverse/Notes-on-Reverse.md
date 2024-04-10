@@ -1109,3 +1109,90 @@ This_is_the_flag_!
 ```plain
 flag{This_is_the_flag_!}
 ```
+
+### [Reverse-[BJDCTF2020]JustRE](https://buuoj.cn/challenges#[BJDCTF2020]JustRE)
+
+先扔进 DIE 里进行分析，发现是 Win 32 GUI 程序
+
+使用 IDA 32 打开，先看主程序
+
+```c
+int __stdcall WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine, int nShowCmd)
+{
+  int result; // eax
+  HACCEL AcceleratorsA; // esi
+  struct tagMSG Msg; // [esp+8h] [ebp-1Ch] BYREF
+
+  LoadStringA(hInstance, 'g', WindowName, 100);
+  LoadStringA(hInstance, 'm', ClassName, 100);
+  sub_4010C0(hInstance);
+  result = (int)sub_401150(hInstance, nShowCmd);
+  if ( result )
+  {
+    AcceleratorsA = LoadAcceleratorsA(hInstance, (LPCSTR)0x6D);
+    while ( GetMessageA(&Msg, 0, 0, 0) )
+    {
+      if ( !TranslateAcceleratorA(Msg.hwnd, AcceleratorsA, &Msg) )
+      {
+        TranslateMessage(&Msg);
+        DispatchMessageA(&Msg);
+      }
+    }
+    return Msg.wParam;
+  }
+  return result;
+}
+```
+
+只能看出这是些 GUI 应用程序的加载程序，里面的函数点进去也没办法找到什么有用的信息...
+
+这时候就需要用到另一个方法——检索字段了
+
+在 IDA 中使用 `Shift + F12` 打开 `Strings` 页，可以发现有一段非常可疑的字段
+
+![Reverse-[BJDCTF2020]JustRE-1](./Notes-on-Reverse/Reverse-[BJDCTF2020]JustRE-1.png)
+
+```plain
+BJD{%d%d2069a45792d233ac}
+```
+
+双击进入，选中该变量并用 `Ctrl + X` 查看变量的交叉引用
+
+![Reverse-[BJDCTF2020]JustRE-2](./Notes-on-Reverse/Reverse-[BJDCTF2020]JustRE-2.png)
+
+选择第一个点击 `OK` 即可跳转到相应的代码段，再使用 `F5` 反编译获得逆向程序
+
+```c
+INT_PTR __stdcall DialogFunc(HWND hWnd, UINT a2, WPARAM a3, LPARAM a4)
+{
+  CHAR String[100]; // [esp+0h] [ebp-64h] BYREF
+
+  if ( a2 != 272 )
+  {
+    if ( a2 != 273 )
+      return 0;
+    if ( (_WORD)a3 != 1 && (_WORD)a3 != 2 )
+    {
+      sprintf(String, &Format, ++dword_4099F0);
+      if ( dword_4099F0 == 19999 )
+      {
+        sprintf(String, " BJD{%d%d2069a45792d233ac}", 19999, 0);
+        SetWindowTextA(hWnd, String);
+        return 0;
+      }
+      SetWindowTextA(hWnd, String);
+      return 0;
+    }
+    EndDialog(hWnd, (unsigned __int16)a3);
+  }
+  return 1;
+}
+```
+
+可以发现这里用一个 `sprintf()` 函数生成了 flag 并显示在 WindowTextA 对象上
+
+由此，我们可以得到 flag
+
+```plain
+flag{1999902069a45792d233ac}
+```
