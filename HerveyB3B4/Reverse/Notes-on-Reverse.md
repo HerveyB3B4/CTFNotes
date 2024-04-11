@@ -1196,3 +1196,130 @@ INT_PTR __stdcall DialogFunc(HWND hWnd, UINT a2, WPARAM a3, LPARAM a4)
 ```plain
 flag{1999902069a45792d233ac}
 ```
+
+### [Reverse-简单注册器](https://buuoj.cn/challenges#简单注册器)
+
+使用 jadx-gui 打开文件，找到 `MainActivity`
+
+```java
+package com.example.flag;
+
+import android.os.Bundle;
+import android.support.v4.app.Fragment;
+import android.support.v7.app.ActionBarActivity;
+import android.view.LayoutInflater;
+import android.view.Menu;
+import android.view.MenuItem;
+import android.view.View;
+import android.view.ViewGroup;
+import android.widget.Button;
+import android.widget.EditText;
+import android.widget.TextView;
+
+/* loaded from: classes.dex */
+public class MainActivity extends ActionBarActivity {
+    /* JADX INFO: Access modifiers changed from: protected */
+    @Override // android.support.v7.app.ActionBarActivity, android.support.v4.app.FragmentActivity, android.app.Activity
+    public void onCreate(Bundle savedInstanceState) {
+        super.onCreate(savedInstanceState);
+        setContentView(R.layout.activity_main);
+        if (savedInstanceState == null) {
+            getSupportFragmentManager().beginTransaction().add(R.id.container, new PlaceholderFragment()).commit();
+        }
+        Button button = (Button) findViewById(R.id.button1);
+        final TextView textview = (TextView) findViewById(R.id.textView1);
+        final EditText editview = (EditText) findViewById(R.id.editText1);
+        button.setOnClickListener(new View.OnClickListener() { // from class: com.example.flag.MainActivity.1
+            @Override // android.view.View.OnClickListener
+            public void onClick(View v) {
+                int flag = 1;
+                String xx = editview.getText().toString();
+                flag = (xx.length() == 32 && xx.charAt(31) == 'a' && xx.charAt(1) == 'b' && (xx.charAt(0) + xx.charAt(2)) + (-48) == 56) ? 0 : 0;
+                if (flag == 1) {
+                    char[] x = "dd2940c04462b4dd7c450528835cca15".toCharArray();
+                    x[2] = (char) ((x[2] + x[3]) - 50);
+                    x[4] = (char) ((x[2] + x[5]) - 48);
+                    x[30] = (char) ((x[31] + x[9]) - 48);
+                    x[14] = (char) ((x[27] + x[28]) - 97);
+                    for (int i = 0; i < 16; i++) {
+                        char a = x[31 - i];
+                        x[31 - i] = x[i];
+                        x[i] = a;
+                    }
+                    String bbb = String.valueOf(x);
+                    textview.setText("flag{" + bbb + "}");
+                    return;
+                }
+                textview.setText("输入注册码错误");
+            }
+        });
+    }
+
+    @Override // android.app.Activity
+    public boolean onCreateOptionsMenu(Menu menu) {
+        getMenuInflater().inflate(R.menu.main, menu);
+        return true;
+    }
+
+    @Override // android.app.Activity
+    public boolean onOptionsItemSelected(MenuItem item) {
+        int id = item.getItemId();
+        if (id == R.id.action_settings) {
+            return true;
+        }
+        return super.onOptionsItemSelected(item);
+    }
+
+    /* loaded from: classes.dex */
+    public static class PlaceholderFragment extends Fragment {
+        @Override // android.support.v4.app.Fragment
+        public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
+            View rootView = inflater.inflate(R.layout.fragment_main, container, false);
+            return rootView;
+        }
+    }
+}
+```
+
+可以发现生成 flag 的代码在这里
+
+```java
+char[] x = "dd2940c04462b4dd7c450528835cca15".toCharArray();
+x[2] = (char) ((x[2] + x[3]) - 50);
+x[4] = (char) ((x[2] + x[5]) - 48);
+x[30] = (char) ((x[31] + x[9]) - 48);
+x[14] = (char) ((x[27] + x[28]) - 97);
+for (int i = 0; i < 16; i++) {
+    char a = x[31 - i];
+    x[31 - i] = x[i];
+    x[i] = a;
+}
+String bbb = String.valueOf(x);
+textview.setText("flag{" + bbb + "}");
+```
+
+写成 Java 程序运行一下就能获得 flag
+
+```java
+public class Main {
+    public static void main(String[] args) {
+        char[] x = "dd2940c04462b4dd7c450528835cca15".toCharArray();
+        x[2] = (char) ((x[2] + x[3]) - 50);
+        x[4] = (char) ((x[2] + x[5]) - 48);
+        x[30] = (char) ((x[31] + x[9]) - 48);
+        x[14] = (char) ((x[27] + x[28]) - 97);
+        for (int i = 0; i < 16; i++) {
+            char a = x[31 - i];
+            x[31 - i] = x[i];
+            x[i] = a;
+        }
+        String bbb = String.valueOf(x);
+        System.out.println("flag{" + bbb + "}");
+        return;
+    }
+}
+```
+
+```plain
+flag{59acc538825054c7de4b26440c0999dd}
+```
