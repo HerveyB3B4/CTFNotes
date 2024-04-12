@@ -1197,6 +1197,260 @@ INT_PTR __stdcall DialogFunc(HWND hWnd, UINT a2, WPARAM a3, LPARAM a4)
 flag{1999902069a45792d233ac}
 ```
 
+### [Reverse-刮开有奖](https://buuoj.cn/challenges#刮开有奖)
+
+使用 DIE 查壳，发现是一个 Win 32 GUI 程序
+
+使用 IDA 打开文件，和上一题一样，在 IDA 中使用 `Shift + F12` 打开 `Strings` 页，可以发现有一段非常可疑的字段
+
+```plain
+U g3t 1T!
+```
+
+双击进入，选中该变量并用 `Ctrl + X` 查看变量的交叉引用，追踪到主程序
+
+```c
+INT_PTR __stdcall DialogFunc(HWND hDlg, UINT a2, WPARAM a3, LPARAM a4)
+{
+  const char *v4; // esi
+  const char *v5; // edi
+  int v7[2]; // [esp+8h] [ebp-20030h] BYREF
+  int v8; // [esp+10h] [ebp-20028h]
+  int v9; // [esp+14h] [ebp-20024h]
+  int v10; // [esp+18h] [ebp-20020h]
+  int v11; // [esp+1Ch] [ebp-2001Ch]
+  int v12; // [esp+20h] [ebp-20018h]
+  int v13; // [esp+24h] [ebp-20014h]
+  int v14; // [esp+28h] [ebp-20010h]
+  int v15; // [esp+2Ch] [ebp-2000Ch]
+  int v16; // [esp+30h] [ebp-20008h]
+  CHAR String[65536]; // [esp+34h] [ebp-20004h] BYREF
+  char v18[65536]; // [esp+10034h] [ebp-10004h] BYREF
+
+  if ( a2 == 272 )
+    return 1;
+  if ( a2 != 273 )
+    return 0;
+  if ( (_WORD)a3 == 1001 )
+  {
+    memset(String, 0, 0xFFFFu);
+    GetDlgItemTextA(hDlg, 1000, String, 0xFFFF);
+    if ( strlen(String) == 8 )
+    {
+      v7[0] = 90;
+      v7[1] = 74;
+      v8 = 83;
+      v9 = 69;
+      v10 = 67;
+      v11 = 97;
+      v12 = 78;
+      v13 = 72;
+      v14 = 51;
+      v15 = 110;
+      v16 = 103;
+      sub_4010F0(v7, 0, 10);
+      memset(v18, 0, 0xFFFFu);
+      v18[0] = String[5];
+      v18[2] = String[7];
+      v18[1] = String[6];
+      v4 = (const char *)sub_401000(v18, strlen(v18));
+      memset(v18, 0, 0xFFFFu);
+      v18[1] = String[3];
+      v18[0] = String[2];
+      v18[2] = String[4];
+      v5 = (const char *)sub_401000(v18, strlen(v18));
+      if ( String[0] == v7[0] + 34
+        && String[1] == v10
+        && 4 * String[2] - 141 == 3 * v8
+        && String[3] / 4 == 2 * (v13 / 9)
+        && !strcmp(v4, "ak1w")
+        && !strcmp(v5, "V1Ax") )
+      {
+        MessageBoxA(hDlg, "U g3t 1T!", "@_@", 0);
+      }
+    }
+    return 0;
+  }
+  if ( (_WORD)a3 != 1 && (_WORD)a3 != 2 )
+    return 0;
+  EndDialog(hDlg, (unsigned __int16)a3);
+  return 1;
+}
+```
+
+这段程序对输入的字符串进行了比对的操作，发现这里面存在两个函数 `sub_4010F0` , `sub_401000` 点击进入函数
+
+```c
+int __cdecl sub_4010F0(int a1, int a2, int a3)
+{
+  int result; // eax
+  int i; // esi
+  int v5; // ecx
+  int v6; // edx
+
+  result = a3;
+  for ( i = a2; i <= a3; a2 = i )
+  {
+    v5 = 4 * i;
+    v6 = *(_DWORD *)(4 * i + a1);
+    if ( a2 < result && i < result )
+    {
+      do
+      {
+        if ( v6 > *(_DWORD *)(a1 + 4 * result) )
+        {
+          if ( i >= result )
+            break;
+          ++i;
+          *(_DWORD *)(v5 + a1) = *(_DWORD *)(a1 + 4 * result);
+          if ( i >= result )
+            break;
+          while ( *(_DWORD *)(a1 + 4 * i) <= v6 )
+          {
+            if ( ++i >= result )
+              goto LABEL_13;
+          }
+          if ( i >= result )
+            break;
+          v5 = 4 * i;
+          *(_DWORD *)(a1 + 4 * result) = *(_DWORD *)(4 * i + a1);
+        }
+        --result;
+      }
+      while ( i < result );
+    }
+LABEL_13:
+    *(_DWORD *)(a1 + 4 * result) = v6;
+    sub_4010F0(a1, a2, i - 1);
+    result = a3;
+    ++i;
+  }
+  return result;
+}
+```
+
+分析得到这是一个快速排序的程序
+
+```c
+_BYTE *__cdecl sub_401000(int a1, int a2)
+{
+  int v2; // eax
+  int v3; // esi
+  size_t v4; // ebx
+  _BYTE *v5; // eax
+  _BYTE *v6; // edi
+  int v7; // eax
+  _BYTE *v8; // ebx
+  int v9; // edi
+  int v10; // edx
+  int v11; // edi
+  int v12; // eax
+  int i; // esi
+  _BYTE *result; // eax
+  _BYTE *v15; // [esp+Ch] [ebp-10h]
+  _BYTE *v16; // [esp+10h] [ebp-Ch]
+  int v17; // [esp+14h] [ebp-8h]
+  int v18; // [esp+18h] [ebp-4h]
+
+  v2 = a2 / 3;
+  v3 = 0;
+  if ( a2 % 3 > 0 )
+    ++v2;
+  v4 = 4 * v2 + 1;
+  v5 = malloc(v4);
+  v6 = v5;
+  v15 = v5;
+  if ( !v5 )
+    exit(0);
+  memset(v5, 0, v4);
+  v7 = a2;
+  v8 = v6;
+  v16 = v6;
+  if ( a2 > 0 )
+  {
+    while ( 1 )
+    {
+      v9 = 0;
+      v10 = 0;
+      v18 = 0;
+      do
+      {
+        if ( v3 >= v7 )
+          break;
+        ++v10;
+        v9 = *(unsigned __int8 *)(v3 + a1) | (v9 << 8);
+        ++v3;
+      }
+      while ( v10 < 3 );
+      v11 = v9 << (8 * (3 - v10));
+      v12 = 0;
+      v17 = v3;
+      for ( i = 18; i > -6; i -= 6 )
+      {
+        if ( v10 >= v12 )
+        {
+          *((_BYTE *)&v18 + v12) = (v11 >> i) & 0x3F;
+          v8 = v16;
+        }
+        else
+        {
+          *((_BYTE *)&v18 + v12) = 64;
+        }
+        *v8++ = byte_407830[*((char *)&v18 + v12++)];
+        v16 = v8;
+      }
+      v3 = v17;
+      if ( v17 >= a2 )
+        break;
+      v7 = a2;
+    }
+    v6 = v15;
+  }
+  result = v6;
+  *v8 = 0;
+  return result;
+}
+```
+
+其中 `byte_407830` 数组的值是 `ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/=` ，经过分析可以得知这是一段 base64 加密函数
+
+所以对于上面的关键程序，我们能够得到其逻辑是
+
+1. 使用 `GetDlgItemTextA()` 函数获得一段字符串 `String`
+2. 定义一个 `int` 类型的数组，值为 `{90, 74, 83, 69, 67, 97, 78, 72, 51, 110, 103}`
+3. 对这个数组进行排序，分别对其第 `2 3 4` 位和第 `5 6 7` 位进行 `base64` 加密
+4. 将 `String` 字符串与这个数组进行比对，如果一致则输出校验成功的信息
+
+由此可以写出解密程序:
+
+```python
+import base64
+
+String = [90, 74, 83, 69, 67, 97, 78, 72, 51, 110, 103]
+String.sort()
+
+flag = ""
+flag = flag + chr(String[0] + 34)                    # 0位
+flag = flag + chr(String[4])                         # 1位
+flag = flag + str(base64.b64decode("V1Ax"), 'utf-8') # 234位
+flag = flag + str(base64.b64decode("ak1w"), 'utf-8') # 567位
+print(flag)
+```
+
+运行结果如下
+
+```shell
+┌──(hervey㉿Hervey)-[/mnt/c/Users/hervey/Desktop]
+└─$ python3 ./dec.py
+UJWP1jMp
+```
+
+进而获得 flag
+
+```plain
+flag{UJWP1jMp}
+```
+
 ### [Reverse-简单注册器](https://buuoj.cn/challenges#简单注册器)
 
 使用 jadx-gui 打开文件，找到 `MainActivity`
