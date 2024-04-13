@@ -1577,3 +1577,91 @@ public class Main {
 ```plain
 flag{59acc538825054c7de4b26440c0999dd}
 ```
+
+### [Reverse-[ACTF新生赛2020]easyre](https://buuoj.cn/challenges#[ACTF新生赛2020]easyre)
+
+使用 DIE 查壳，发现是个 32 位控制台应用，且有一层 UPX 壳，使用 `upx -d` 命令脱壳
+
+```shell
+┌──(hervey㉿Hervey)-[/mnt/c/Users/hervey/Desktop]
+└─$ upx -d ./easyre.exe
+                       Ultimate Packer for eXecutables
+                          Copyright (C) 1996 - 2024
+UPX 4.2.2       Markus Oberhumer, Laszlo Molnar & John Reiser    Jan 3rd 2024
+
+        File size         Ratio      Format      Name
+   --------------------   ------   -----------   -----------
+     28123 <-     21467   76.33%    win32/pe     easyre.exe
+
+Unpacked 1 file.
+```
+
+脱壳后使用 IDA 打开，找到主程序
+
+```c
+int __cdecl main(int argc, const char **argv, const char **envp)
+{
+  _BYTE v4[12]; // [esp+12h] [ebp-2Eh] BYREF
+  _DWORD v5[3]; // [esp+1Eh] [ebp-22h]
+  _BYTE v6[5]; // [esp+2Ah] [ebp-16h] BYREF
+  int v7; // [esp+2Fh] [ebp-11h]
+  int v8; // [esp+33h] [ebp-Dh]
+  int v9; // [esp+37h] [ebp-9h]
+  char v10; // [esp+3Bh] [ebp-5h]
+  int i; // [esp+3Ch] [ebp-4h]
+
+  __main();
+  qmemcpy(v4, "*F'\"N,\"(I?+@", sizeof(v4));
+  printf("Please input:");
+  scanf("%s", v6);
+  if ( v6[0] != 'A' || v6[1] != 'C' || v6[2] != 'T' || v6[3] != 'F' || v6[4] != '{' || v10 != '}' )
+    return 0;
+  v5[0] = v7;
+  v5[1] = v8;
+  v5[2] = v9;
+  for ( i = 0; i <= 11; ++i )
+  {
+    if ( v4[i] != _data_start__[*((char *)v5 + i) - 1] )
+      return 0;
+  }
+  printf("You are correct!");
+  return 0;
+}
+```
+
+这段程序首先检查 v6 是否由 `ACTF{}` 包裹，然后对于 v6 的正文部分(共 12 位) 的每一位进行校验，判断其 ASCII 码 - 1 在数组 `_data_start__` 中的位置是否和 v4 的对应位相同，从前面的程序可以得知 `v4` 的值为
+
+```plain
+*F'"N,"(I?+@
+```
+
+同时，我们可以从静态数据区获得 `_data_start__` 的值为
+
+```plain
+~}|{zyxwvutsrqponmlkjihgfedcba`_^]\[ZYXWVUTSRQPONMLKJIHGFEDCBA@?>=<;:9876543210/.-,+*)(\'&%$# !"
+```
+
+由此写出解密脚本
+
+```python
+v4 = "*F'\"N,\"(I?+@"
+data_start = '~}|{zyxwvutsrqponmlkjihgfedcba`_^]\[ZYXWVUTSRQPONMLKJIHGFEDCBA@?>=<;:9876543210/.-,+*)(\'&%$# !"'
+flag = ""
+for c in v4:
+    flag += chr(data_start.index(c) + 1)
+print(flag)
+```
+
+运行这段脚本获得 flag
+
+```shell
+┌──(hervey㉿Hervey)-[/mnt/c/Users/hervey/Desktop]
+└─$ python3 ./dec.py
+U9X_1S_W6@T?
+```
+
+进而获得 flag
+
+```plain
+flag{U9X_1S_W6@T?}
+```
