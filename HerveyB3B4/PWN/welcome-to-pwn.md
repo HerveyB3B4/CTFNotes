@@ -6,7 +6,7 @@
 
 [Kali WSL 安装教程](https://herveyb3b4.github.io/2023/11/30/How-to-install-Kali-WSL/) ~~趁机宣传一下博客~~
 
-### gcd 调试工具
+### gdb 调试工具
 
 ```shell
 sudo apt install gdb
