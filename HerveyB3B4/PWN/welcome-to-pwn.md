@@ -76,10 +76,9 @@ int try_to_call_me()
 
 所以我们的目标应该是利用 `gets()` 这个危险函数的缓冲区溢出漏洞，将 `v4` 变量数据溢出到覆盖返回地址，实现跳转到执行 `system("sh")` 进而去获得 flag
 
-使用 `gdb` 运行 `attachment` 获得变量 v4 的缓冲区大小以及 `system("sh")` 对应的位置
+使用 `gdb` 运行 `attachment` 获得变量 `v4` 的缓冲区大小以及 `system("sh")` 对应的位置
 
 ```shell
-
 ┌──(hervey㉿Hervey)-[~/Downloads]
 └─$ gdb
 GNU gdb (Debian 13.2-1) 13.2
@@ -164,7 +163,7 @@ p.interactive()
 运行该脚本，进入容器终端
 
 ```shell
-┌──(hervey㉿ZHW)-[~/Downloads]
+┌──(hervey㉿Hervey)-[~/Downloads]
 └─$ python3 ./sol.py
 [+] Opening connection to <IP Address> on port <Port>: Done
 [*] Switching to interactive mode
