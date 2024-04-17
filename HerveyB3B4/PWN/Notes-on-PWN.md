@@ -326,7 +326,7 @@ p.interactive()
 ```shell
 ┌──(hervey㉿Hervey)-[~/Downloads]
 └─$ python3 ./sol.py
-[+] Opening connection to node5.buuoj.cn on port 28081: Done
+[+] Opening connection to <IP Address> on port <Port>: Done
 [*] Switching to interactive mode
 Let's guess the number.
 Its value should be 11.28125
