@@ -1665,3 +1665,102 @@ U9X_1S_W6@T?
 ```plain
 flag{U9X_1S_W6@T?}
 ```
+
+### [Reverse-[GWCTF%202019]pyre](https://buuoj.cn/challenges#[GWCTF%202019]pyre)
+
+下载后发现是一个 `.pyc` 文件，使用 [python反编译](https://tool.lu/pyc/) 进行反编译
+
+```python
+#!/usr/bin/env python
+# visit https://tool.lu/pyc/ for more information
+# Version: Python 2.7
+
+print 'Welcome to Re World!'
+print 'Your input1 is your flag~'
+l = len(input1)
+for i in range(l):
+    num = ((input1[i] + i) % 128 + 128) % 128
+    code += num
+
+for i in range(l - 1):
+    code[i] = code[i] ^ code[i + 1]
+
+print code
+code = [
+    "\x1f",
+    "\x12",
+    "\x1d",
+    "(",
+    "0",
+    "4",
+    "\x01",
+    "\x06",
+    "\x14",
+    "4",
+    ",",
+    "\x1b",
+    "U",
+    "?",
+    "o",
+    "6",
+    "*",
+    ":",
+    "\x01",
+    "D",
+    ";",
+    "%",
+    "\x13"
+    ]
+```
+
+可以发现这是一段加密操作，编写脚本反向解密一下即可
+
+```python
+code = [
+    "\x1f",
+    "\x12",
+    "\x1d",
+    "(",
+    "0",
+    "4",
+    "\x01",
+    "\x06",
+    "\x14",
+    "4",
+    ",",
+    "\x1b",
+    "U",
+    "?",
+    "o",
+    "6",
+    "*",
+    ":",
+    "\x01",
+    "D",
+    ";",
+    "%",
+    "\x13",
+]
+
+flag = ""
+for i in range(len(code) - 2, -1, -1):
+    code[i] = chr(ord(code[i]) ^ ord(code[i + 1]))
+for i in range(len(code)):
+    flag += chr((ord(code[i]) - i) % 128)
+
+print(flag)
+```
+
+运行脚本
+
+```shell
+┌──(hervey㉿Hervey)-[/mnt/c/Users/hervey/Desktop]
+└─$ python3 ./dec.py
+GWHT{Just_Re_1s_Ha66y!}
+```
+
+进而获得 flag
+
+```plain
+flag{Just_Re_1s_Ha66y!}
+```
