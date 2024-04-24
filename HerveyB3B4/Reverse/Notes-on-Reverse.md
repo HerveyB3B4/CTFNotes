@@ -4,9 +4,9 @@
 
 ### [Reverse-easyre](https://buuoj.cn/challenges#easyre)
 
-先用DIE查壳，发现是个无壳的64位程序
+先用 DIE 查壳，发现是个无壳的 64 位程序
 
-使用IDA64打开`easyre.exe`文件，找到程序的入口`main`:
+使用 IDA64 打开 `easyre.exe` 文件，找到程序的入口 `main` :
 
 ```c
 int __cdecl main(int argc, const char **argv, const char **envp)
@@ -32,9 +32,9 @@ flag{this_Is_a_EaSyRe}
 
 ### [Reverse-reverse1](https://buuoj.cn/challenges#reverse1)
 
-先用DIE查壳，发现是个无壳的64位程序
+先用 DIE 查壳，发现是个无壳的 64 位程序
 
-使用IDA64打开`reverse_1.exe`文件，找到程序的入口`main_0`:
+使用 IDA64 打开 `reverse_1.exe` 文件，找到程序的入口 `main_0` :
 
 ```c
 int __cdecl main_0(int argc, const char **argv, const char **envp)
@@ -129,9 +129,9 @@ flag{hell0_w0rld}
 
 ### [Reverse-reverse2](https://buuoj.cn/challenges#reverse2)
 
-先用DIE查壳，这次是个ELF64文件
+先用 DIE 查壳，这次是个 ELF64 文件
 
-使用IDA64打开`reverse_2`文件，找到程序的入口`main`:
+使用 IDA64 打开 `reverse_2` 文件，找到程序的入口 `main` :
 
 ```c
 int __cdecl main(int argc, const char **argv, const char **envp)
@@ -184,9 +184,9 @@ flag{hack1ng_fo1_fun}
 
 ### [Reverse-reverse3](https://buuoj.cn/challenges#reverse3)
 
-先用DIE查壳，这次是个PE32文件
+先用 DIE 查壳，这次是个 PE32 文件
 
-使用IDA打开`reverse_3.exe`文件，找到程序的入口`main`:
+使用 IDA 打开 `reverse_3.exe` 文件，找到程序的入口 `main` :
 
 ```c
 int __cdecl main_0(int argc, const char **argv, const char **envp)
@@ -325,7 +325,7 @@ void *__cdecl sub_411AB0(char *a1, unsigned int a2, int *a3)
 .data:0041A034 65 33 6E 69 66 49 48 39 62 5F+Str2 db 'e3nifIH9b_C@n@dH',0            ; DATA XREF: _main_0+142↑o
 ```
 
-对main函数流程逆向获得解密程序
+对 `main` 函数流程逆向获得解密程序
 
 ```python
 import base64
@@ -352,7 +352,7 @@ flag{i_l0ve_you}
 
 ### [Reverse-内涵的软件](https://buuoj.cn/challenges#内涵的软件)
 
-先用DIE查壳，这次是个PE32文件
+先用 DIE 查壳，这次是个 PE32 文件
 
 先运行一下程序
 
@@ -1888,4 +1888,133 @@ flag{c164675262033b4c49bdf7f9cda28a75}
 
 ```plain
 flag{c164675262033b4c49bdf7f9cda28a75}
+```
+
+### [Reverse-[ACTF新生赛2020]rome](https://buuoj.cn/challenges#[ACTF新生赛2020]rome)
+
+先用 DIE 查壳，发现是个无壳的 32 位程序
+
+使用 IDA 打开 `easyre.exe` 文件，找到程序的入口:
+
+```c
+int __cdecl main(int argc, const char **argv, const char **envp)
+{
+  __main();
+  func();
+  return 0;
+}
+```
+
+发现这里有个函数 `func()` ，点击进入
+
+```c
+int func()
+{
+  int result; // eax
+  int v1[4]; // [esp+14h] [ebp-44h]
+  unsigned __int8 v2; // [esp+24h] [ebp-34h] BYREF
+  unsigned __int8 v3; // [esp+25h] [ebp-33h]
+  unsigned __int8 v4; // [esp+26h] [ebp-32h]
+  unsigned __int8 v5; // [esp+27h] [ebp-31h]
+  unsigned __int8 v6; // [esp+28h] [ebp-30h]
+  int v7; // [esp+29h] [ebp-2Fh]
+  int v8; // [esp+2Dh] [ebp-2Bh]
+  int v9; // [esp+31h] [ebp-27h]
+  int v10; // [esp+35h] [ebp-23h]
+  unsigned __int8 v11; // [esp+39h] [ebp-1Fh]
+  char v12[29]; // [esp+3Bh] [ebp-1Dh] BYREF
+
+  strcpy(v12, "Qsw3sj_lz4_Ujw@l");
+  printf("Please input:");
+  scanf("%s", &v2);
+  result = v2;
+  if ( v2 == 'A' )
+  {
+    result = v3;
+    if ( v3 == 67 )
+    {
+      result = v4;
+      if ( v4 == 84 )
+      {
+        result = v5;
+        if ( v5 == 70 )
+        {
+          result = v6;
+          if ( v6 == 123 )
+          {
+            result = v11;
+            if ( v11 == 125 )
+            {
+              v1[0] = v7;
+              v1[1] = v8;
+              v1[2] = v9;
+              v1[3] = v10;
+              *(_DWORD *)&v12[17] = 0;
+              while ( *(int *)&v12[17] <= 15 )
+              {
+                if ( *((char *)v1 + *(_DWORD *)&v12[17]) > 64 && *((char *)v1 + *(_DWORD *)&v12[17]) <= 90 )
+                  *((_BYTE *)v1 + *(_DWORD *)&v12[17]) = (*((char *)v1 + *(_DWORD *)&v12[17]) - 51) % 26 + 65;
+                if ( *((char *)v1 + *(_DWORD *)&v12[17]) > 96 && *((char *)v1 + *(_DWORD *)&v12[17]) <= 122 )
+                  *((_BYTE *)v1 + *(_DWORD *)&v12[17]) = (*((char *)v1 + *(_DWORD *)&v12[17]) - 79) % 26 + 97;
+                ++*(_DWORD *)&v12[17];
+              }
+              *(_DWORD *)&v12[17] = 0;
+              while ( *(int *)&v12[17] <= 15 )
+              {
+                result = (unsigned __int8)v12[*(_DWORD *)&v12[17]];
+                if ( *((_BYTE *)v1 + *(_DWORD *)&v12[17]) != (_BYTE)result )
+                  return result;
+                ++*(_DWORD *)&v12[17];
+              }
+              return printf("You are correct!");
+            }
+          }
+        }
+      }
+    }
+  }
+  return result;
+}
+```
+
+发现这是一段凯撒加密的程序，即对大小写字母分别循环左移 51 和 79 位，编写程序完成解密
+
+```cpp
+#include <bits/stdc++.h>
+
+using namespace std;
+
+int main()
+{
+    string v12 = "Qsw3sj_lz4_Ujw@l";
+    for (auto &c : v12)
+    {
+        if (isupper(c))
+        {
+            c = c - 65 + 51;
+            if (!isupper(c))
+                c += 26;
+        }
+        if (islower(c))
+        {
+            c = c - 97 + 79;
+            if (!islower(c))
+                c += 26;
+        }
+    }
+    cout << v12 << endl;
+    return 0;
+}
+```
+
+运行得到
+
+```plain
+Cae3ar_th4_Gre@t
+```
+
+进而获得 flag
+
+```plain
+flag{Cae3ar_th4_Gre@t}
 ```
