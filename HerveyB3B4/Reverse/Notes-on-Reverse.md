@@ -2018,3 +2018,57 @@ Cae3ar_th4_Gre@t
 ```plain
 flag{Cae3ar_th4_Gre@t}
 ```
+
+### [Reverse-rsa](https://buuoj.cn/challenges#rsa)
+
+下载后解压获得两个文件 `pub.key` 和 `flag.enc`
+
+其中 `pub.key` 是 rsa 加密的公钥, `flag.enc` 是 rsa 加密的密文
+
+使用 [这个网站](http://tool.chacuo.net/cryptrsakeyparse) 解析公钥
+
+| | |
+|:-:|:-:|
+|key长度：|256|
+|模数|C0332C5C64AE47182F6C1C876D42336910545A58F7EEFEFC0BCAAF5AF341CCDD|
+|指数|65537 (0x10001)|
+
+可以得知 $E = 65537$, $N = 86934482296048119190666062003494800588905656017203025617216654058378322103517$
+
+使用 [factordb](http://factordb.com) 分解模数 $N$ 的质因数
+
+$N = P * Q$
+
+$86934482296048119190666062003494800588905656017203025617216654058378322103517 = 285960468890451637935629440372639283459 * 304008741604601924494328155975272418463$
+
+获得 $P$ 和 $Q$ 后就可以用脚本解密这个密文了
+
+```python
+import gmpy2
+import rsa
+
+e = 65537
+n = 86934482296048119190666062003494800588905656017203025617216654058378322103517
+p = 285960468890451637935629440372639283459
+q = 304008741604601924494328155975272418463
+
+d = gmpy2.invert(e, (q - 1) * (p - 1))
+
+key = rsa.PrivateKey(n, e, int(d), p, q)
+
+print(rsa.decrypt(open("./output/flag.enc", "rb+").read(), key))
+```
+
+运行此脚本
+
+```shell
+┌──(hervey㉿Hervey)-[/mnt/c/Users/hervey/Downloads]
+└─$ python3 ./dec.py
+b'flag{decrypt_256}\n'
+```
+
+进而获得 flag
+
+```plain
+flag{decrypt_256}
+```
