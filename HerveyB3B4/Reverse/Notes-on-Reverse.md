@@ -2072,3 +2072,73 @@ b'flag{decrypt_256}\n'
 ```plain
 flag{decrypt_256}
 ```
+
+### [Reverse-[FlareOn4]login](https://buuoj.cn/challenges#[FlareOn4]login)
+
+解压文件获得两个文件 `Description.txt` 和 `login.html`
+
+先看 `Description.txt` 中的提示
+
+```plain
+Hint:本题解出相应字符串后请用flag{}包裹，形如：flag{123456@flare-on.com}
+```
+
+然后运行 `login.html` ，发现这是一个模拟登录界面
+
+查看其源代码
+
+```html
+<!DOCTYPE Html />
+<html>
+    <head>
+        <title>FLARE On 2017</title>
+    </head>
+    <body>
+        <input type="text" name="flag" id="flag" value="Enter the flag" />
+        <input type="button" id="prompt" value="Click to check the flag" />
+        <script type="text/javascript">
+            document.getElementById("prompt").onclick = function () {
+                var flag = document.getElementById("flag").value;
+                var rotFlag = flag.replace(/[a-zA-Z]/g, function(c){return String.fromCharCode((c <= "Z" ? 90 : 122) >= (c = c.charCodeAt(0) + 13) ? c : c - 26);});
+                if ("PyvragFvqrYbtvafNerRnfl@syner-ba.pbz" == rotFlag) {
+                    alert("Correct flag!");
+                } else {
+                    alert("Incorrect flag, rot again");
+                }
+            }
+        </script>
+    </body>
+</html>
+```
+
+可以知道这个程序的逻辑是在文本框中输入 flag ，点击按钮后对 flag 进行凯撒加密，然后与 `PyvragFvqrYbtvafNerRnfl@syner-ba.pbz` 进行校验。
+
+由于这是一个标准的凯撒加密，所以我们可以直接使用 Ciphey 解密
+
+```shell
+┌──(hervey㉿Hervey)-[~]
+└─$ ciphey "PyvragFvqrYbtvafNerRnfl@syner-ba.pbz"
+Possible plaintext: 'PyvragFvqrYbtvafNerRnfl@syner-ba.pbz' (y/N):
+Possible plaintext: 'KbeiztUejiBygezuMviImuo@hbmvi-yz.kya' (y/N):
+Possible plaintext: 'GpmirxWmhiPskmrwEviIewc@jpevi-sr.gsq' (y/N):
+Possible plaintext: 'TknricDnsrKhpnidVerRvdx@qkver-hi.thj' (y/N):
+Possible plaintext: 'FolhqwVlghOrjlqvDuhHdvb@ioduh-rq.frp' (y/N):
+Possible plaintext: 'UlosjdEotsLiqojeWfsSwey@rlwfs-ij.uik' (y/N):
+Possible plaintext: 'EnkgpvUkfgNqikpuCtgGcua@hnctg-qp.eqo' (y/N):
+Possible plaintext: 'VmptkeFputMjrpkfXgtTxfz@smxgt-jk.vjl' (y/N):
+Possible plaintext: 'DmjfouTjefMphjotBsfFbtz@gmbsf-po.dpn' (y/N):
+Possible plaintext: 'WnqulfGqvuNksqlgYhuUyga@tnyhu-kl.wkm' (y/N):
+Possible plaintext: 'ClientSideLoginsAreEasy@flare-on.com' (y/N): y
+╭─────────────────────────────────────────────────────────────────────╮
+│ The plaintext is a Email Address                                    │
+│ Formats used:                                                       │
+│    affine:                                                          │
+│     Key: a=1, b=13Plaintext: "ClientSideLoginsAreEasy@flare-on.com" │
+╰─────────────────────────────────────────────────────────────────────╯
+```
+
+进而获得 flag
+
+```plain
+flag{ClientSideLoginsAreEasy@flare-on.com}
+```
