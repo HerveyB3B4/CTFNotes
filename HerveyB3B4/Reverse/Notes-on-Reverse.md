@@ -2113,7 +2113,7 @@ Hint:本题解出相应字符串后请用flag{}包裹，形如：flag{123456@fla
 
 可以知道这个程序的逻辑是在文本框中输入 flag ，点击按钮后对 flag 进行凯撒加密，然后与 `PyvragFvqrYbtvafNerRnfl@syner-ba.pbz` 进行校验。
 
-由于这是一个标准的凯撒加密，所以我们可以直接使用 Ciphey 解密
+由于这是一个标准的凯撒加密，所以我们可以直接使用 `Ciphey` 解密
 
 ```shell
 ┌──(hervey㉿Hervey)-[~]
