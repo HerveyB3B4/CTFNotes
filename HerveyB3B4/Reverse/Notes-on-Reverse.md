@@ -2142,3 +2142,85 @@ Possible plaintext: 'ClientSideLoginsAreEasy@flare-on.com' (y/N): y
 ```plain
 flag{ClientSideLoginsAreEasy@flare-on.com}
 ```
+
+### [Reverse-[WUSTCTF2020]level1](https://buuoj.cn/challenges#[WUSTCTF2020]level1)
+
+先使用 DIE 查壳，发现是一个无壳 ELF64 程序
+
+使用 IDA 64 反编译，找到 `main` 函数
+
+```c
+int __cdecl main(int argc, const char **argv, const char **envp)
+{
+  int i; // [rsp+4h] [rbp-2Ch]
+  FILE *stream; // [rsp+8h] [rbp-28h]
+  char ptr[24]; // [rsp+10h] [rbp-20h] BYREF
+  unsigned __int64 v7; // [rsp+28h] [rbp-8h]
+
+  v7 = __readfsqword(0x28u);
+  stream = fopen("flag", "r");
+  fread(ptr, 1uLL, 0x14uLL, stream);
+  fclose(stream);
+  for ( i = 1; i <= 19; ++i )
+  {
+    if ( (i & 1) != 0 )
+      printf("%ld\n", (unsigned int)(ptr[i] << i));
+    else
+      printf("%ld\n", (unsigned int)(i * ptr[i]));
+  }
+  return 0;
+}
+```
+
+可以得到一段加密程序，其从 1 开始，遍历一个 20 位的字符数组 ptr，如果是奇数位则输出 `ptr[i] << i` ，如果是偶数位则输出 `i * ptr[i]`
+
+通过查看 `output.txt` 文件我们可以得知程序的运行结果为
+
+```plain
+198
+232
+816
+200
+1536
+300
+6144
+984
+51200
+570
+92160
+1200
+565248
+756
+1474560
+800
+6291456
+1782
+65536000
+```
+
+据此编写 python 脚本解密
+
+```python
+ptr = list(map(int, open("output.txt", 'r').read().split()))
+flag = ""
+for i in range(1, 20):
+    if (i & 1) != 0:
+        flag += chr(ptr[i - 1] >> i)
+    else:
+        flag += chr(ptr[i - 1] // i)
+print(flag)
+```
+
+运行得到
+
+```shell
+┌──(hervey㉿Hervey)-[/mnt/c/Users/hervey/Downloads]
+└─$ python3 ./dec.py
+ctf2020{d9-dE6-20c}
+```
+
+进而获得 flag
+
+```plain
+flag{d9-dE6-20c}
+```
