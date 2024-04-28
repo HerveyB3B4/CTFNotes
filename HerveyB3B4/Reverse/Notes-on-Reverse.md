@@ -2224,3 +2224,174 @@ ctf2020{d9-dE6-20c}
 ```plain
 flag{d9-dE6-20c}
 ```
+
+### [Reverse-[GUET-CTF2019]re](https://buuoj.cn/challenges#[GUET-CTF2019]re)
+
+使用 DIE 查壳，发现有一层 UPX 壳，使用 `upx -d` 命令脱壳
+
+```shell
+┌──(hervey㉿Hervey)-[/mnt/c/Users/hervey/Downloads]
+└─$ upx -d re
+                       Ultimate Packer for eXecutables
+                          Copyright (C) 1996 - 2024
+UPX 4.2.2       Markus Oberhumer, Laszlo Molnar & John Reiser    Jan 3rd 2024
+
+        File size         Ratio      Format      Name
+   --------------------   ------   -----------   -----------
+    841042 <-    304524   36.21%   linux/amd64   re
+
+Unpacked 1 file.
+```
+
+使用 `Shift + F12` 打开 `Strings` 页面，可以发现下面这三个字段
+
+![Reverse-[GUET-CTF2019]re-1](./Notes-on-Reverse/Reverse-[GUET-CTF2019]re-1.png)
+
+随便找一个， `Ctrl + X` 查看交叉引用，定位到函数 `sub_400E28()`
+
+```c
+__int64 __fastcall sub_400E28(__int64 a1, int a2, int a3, int a4, int a5, int a6)
+{
+  int v6; // edx
+  int v7; // ecx
+  int v8; // r8d
+  int v9; // r9d
+  __int64 result; // rax
+  __int64 v11; // [rsp+0h] [rbp-30h] BYREF
+  unsigned __int64 v12; // [rsp+28h] [rbp-8h]
+
+  v12 = __readfsqword(0x28u);
+  sub_40F950((unsigned int)"input your flag:", a2, a3, a4, a5, a6, 0LL, 0LL, 0LL, 0LL);
+  sub_40FA80((unsigned int)"%s", (unsigned int)&v11, v6, v7, v8, v9, v11);
+  if ( (unsigned int)sub_4009AE(&v11) )
+    sub_410350("Correct!");
+  else
+    sub_410350("Wrong!");
+  result = 0LL;
+  if ( __readfsqword(0x28u) != v12 )
+    sub_443550();
+  return result;
+}
+```
+
+可以发现校验器是 `sub_4009AE()` 函数，双击进入
+
+```c
+_BOOL8 __fastcall sub_4009AE(char *a1)
+{
+  if ( 1629056 * *a1 != 166163712 )
+    return 0LL;
+  if ( 6771600 * a1[1] != 731332800 )
+    return 0LL;
+  if ( 3682944 * a1[2] != 357245568 )
+    return 0LL;
+  if ( 10431000 * a1[3] != 1074393000 )
+    return 0LL;
+  if ( 3977328 * a1[4] != 489211344 )
+    return 0LL;
+  if ( 5138336 * a1[5] != 518971936 )
+    return 0LL;
+  if ( 7532250 * a1[7] != 406741500 )
+    return 0LL;
+  if ( 5551632 * a1[8] != 294236496 )
+    return 0LL;
+  if ( 3409728 * a1[9] != 177305856 )
+    return 0LL;
+  if ( 13013670 * a1[10] != 650683500 )
+    return 0LL;
+  if ( 6088797 * a1[11] != 298351053 )
+    return 0LL;
+  if ( 7884663 * a1[12] != 386348487 )
+    return 0LL;
+  if ( 8944053 * a1[13] != 438258597 )
+    return 0LL;
+  if ( 5198490 * a1[14] != 249527520 )
+    return 0LL;
+  if ( 4544518 * a1[15] != 445362764 )
+    return 0LL;
+  if ( 3645600 * a1[17] != 174988800 )
+    return 0LL;
+  if ( 10115280 * a1[16] != 981182160 )
+    return 0LL;
+  if ( 9667504 * a1[18] != 493042704 )
+    return 0LL;
+  if ( 5364450 * a1[19] != 257493600 )
+    return 0LL;
+  if ( 13464540 * a1[20] != 767478780 )
+    return 0LL;
+  if ( 5488432 * a1[21] != 312840624 )
+    return 0LL;
+  if ( 14479500 * a1[22] != 1404511500 )
+    return 0LL;
+  if ( 6451830 * a1[23] != 316139670 )
+    return 0LL;
+  if ( 6252576 * a1[24] != 619005024 )
+    return 0LL;
+  if ( 7763364 * a1[25] != 372641472 )
+    return 0LL;
+  if ( 7327320 * a1[26] != 373693320 )
+    return 0LL;
+  if ( 8741520 * a1[27] != 498266640 )
+    return 0LL;
+  if ( 8871876 * a1[28] != 452465676 )
+    return 0LL;
+  if ( 4086720 * a1[29] != 208422720 )
+    return 0LL;
+  if ( 9374400 * a1[30] == 515592000 )
+    return 5759124 * a1[31] == 719890500;
+  return 0LL;
+}
+```
+
+由此可以编写脚本
+
+```python
+flag = ""
+flag += chr(166163712 // 1629056)
+flag += chr(731332800 // 6771600)
+flag += chr(357245568 // 3682944)
+flag += chr(1074393000 // 10431000)
+flag += chr(489211344 // 3977328)
+flag += chr(518971936 // 5138336)
+flag += '?'
+flag += chr(406741500 // 7532250)
+flag += chr(294236496 // 5551632)
+flag += chr(177305856 // 3409728)
+flag += chr(650683500 // 13013670)
+flag += chr(298351053 // 6088797)
+flag += chr(386348487 // 7884663)
+flag += chr(438258597 // 8944053)
+flag += chr(249527520 // 5198490)
+flag += chr(445362764 // 4544518)
+flag += chr(981182160 // 10115280)
+flag += chr(174988800 // 3645600)
+flag += chr(493042704 // 9667504)
+flag += chr(257493600 // 5364450)
+flag += chr(767478780 // 13464540)
+flag += chr(312840624 // 5488432)
+flag += chr(1404511500 // 14479500)
+flag += chr(316139670 // 6451830)
+flag += chr(619005024 // 6252576)
+flag += chr(372641472 // 7763364)
+flag += chr(373693320 // 7327320)
+flag += chr(498266640 // 8741520)
+flag += chr(452465676 // 8871876)
+flag += chr(208422720 // 4086720)
+flag += chr(515592000 // 9374400)
+flag += chr(719890500 // 5759124)
+print(flag)
+```
+
+运行得到
+
+```shell
+┌──(hervey㉿Hervey)-[/mnt/c/Users/hervey/Downloads]
+└─$ python3 ./dec.py
+flag{e?65421110ba03099a1c039337}
+```
+
+其中 `?` 爆破一下可以得知是 `1` ，由此获得 flag
+
+```plain
+flag{e165421110ba03099a1c039337}
+```
