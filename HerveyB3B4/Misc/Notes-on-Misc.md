@@ -6,7 +6,7 @@
 
 打开`Stegsolve`图片隐写解析器
 
-```bash
+```shell
 java -jar Stegsolve.jar
 ```
 
