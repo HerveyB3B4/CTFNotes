@@ -74,3 +74,23 @@ Possible plaintext: 'flag{5cd1004d-86a5-46d8-b720-beb5ba0417e1}' (y/N): y
 │     Key: 13Plaintext: "flag{5cd1004d-86a5-46d8-b720-beb5ba0417e1}" │
 ╰────────────────────────────────────────────────────────────────────╯
 ```
+
+### [Crypto-摩丝](https://buuoj.cn/challenges#%E6%91%A9%E4%B8%9D)
+
+打开文件后得到
+
+```plain
+.. .-.. --- ...- . -.-- --- ..-
+```
+
+是一段摩斯密码，解密后得到
+
+```plain
+ILOVEYOU
+```
+
+得到 flag 为
+
+```plain
+flag{ILOVEYOU}
+```
