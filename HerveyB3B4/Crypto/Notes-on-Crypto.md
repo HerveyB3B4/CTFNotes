@@ -94,3 +94,26 @@ ILOVEYOU
 ```plain
 flag{ILOVEYOU}
 ```
+
+### [Crypto-password](https://buuoj.cn/challenges#password)
+
+打开文件后得到
+
+```plain
+姓名：张三 
+生日：19900315
+
+key格式为key{xxxxxxxxxx}
+```
+
+密码有十位，猜测是 "姓名首字母+生日" 组合
+
+```plain
+key{zs19900315}
+```
+
+得到 flag 为
+
+```plain
+flag{zs19900315}
+```
