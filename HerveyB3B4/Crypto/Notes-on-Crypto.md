@@ -117,3 +117,37 @@ key{zs19900315}
 ```plain
 flag{zs19900315}
 ```
+
+### [Crypto-变异凯撒](https://buuoj.cn/challenges#%E5%8F%98%E5%BC%82%E5%87%AF%E6%92%92)
+
+打开文件后得到
+
+```plain
+加密密文：afZ_r9VYfScOeO_UL^RWUc
+格式：flag{ }
+```
+
+根据题目提示可以得知应该是凯撒加密变种，将已知字符一一对应
+
+|$\Delta$|5|6|7|8|9|?|?|?|?|?|?|?|?|?|?|?|?|?|?|?|?|26|
+|:-:|:-:|:-:|:-:|:-:|:-:|:-:|:-:|:-:|:-:|:-:|:-:|:-:|:-:|:-:|:-:|:-:|:-:|:-:|:-:|:-:|:-:|:-:|
+|密文|a|f|Z|_|r|9|V|Y|f|S|c|O|e|O|_|U|L|^|R|W|U|c|
+|明文|f|l|a|g|{| | | | | | | | | | | | | | | | |}|
+
+发现位移每次增加 1 ，由此，我们可以写出解密脚本
+
+```plain
+secret_text = "afZ_r9VYfScOeO_UL^RWUc"
+flag = ""
+for i in range(len(secret_text)):
+    flag += chr(ord(secret_text[i]) + 5 + i)
+print(flag)
+```
+
+运行得到 flag
+
+```plain
+┌──(hervey㉿Hervey)-[/mnt/c/Users/hervey/Downloads]
+└─$ python3 ./dec.py
+flag{Caesar_variation}
+```
