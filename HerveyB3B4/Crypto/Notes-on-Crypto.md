@@ -136,7 +136,7 @@ flag{zs19900315}
 
 发现位移每次增加 1 ，由此，我们可以写出解密脚本
 
-```plain
+```python
 secret_text = "afZ_r9VYfScOeO_UL^RWUc"
 flag = ""
 for i in range(len(secret_text)):
@@ -146,8 +146,30 @@ print(flag)
 
 运行得到 flag
 
-```plain
+```shell
 ┌──(hervey㉿Hervey)-[/mnt/c/Users/hervey/Downloads]
 └─$ python3 ./dec.py
 flag{Caesar_variation}
+```
+
+### [Crypto-Quoted-printable](https://buuoj.cn/challenges#Quoted-printable)
+
+打开文件后得到
+
+```plain
+=E9=82=A3=E4=BD=A0=E4=B9=9F=E5=BE=88=E6=A3=92=E5=93=A6
+```
+
+根据题目提示可以得知这是 `Quoted-printable` 编码
+
+使用 CyberChef 解密可以得到
+
+```plain
+那你也很棒哦
+```
+
+进而得到 flag
+
+```plain
+flag{那你也很棒哦}
 ```
