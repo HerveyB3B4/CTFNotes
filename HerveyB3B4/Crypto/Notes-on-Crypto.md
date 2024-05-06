@@ -173,3 +173,17 @@ flag{Caesar_variation}
 ```plain
 flag{那你也很棒哦}
 ```
+
+### [Crypto-篱笆墙的影子](https://buuoj.cn/challenges#%E7%AF%B1%E7%AC%86%E5%A2%99%E7%9A%84%E5%BD%B1%E5%AD%90)
+
+打开文件后得到
+
+```plain
+felhaagv{ewtehtehfilnakgw}
+```
+
+猜测这应该是栅栏密码，经过一番尝试后用 [CyberChef](https://gchq.github.io/CyberChef/#recipe=Rail_Fence_Cipher_Encode(2,0)&input=ZmVsaGFhZ3Z7ZXd0ZWh0ZWhmaWxuYWtnd30) 解出了 flag
+
+```plain
+flag{wethinkwehavetheflag}
+```
