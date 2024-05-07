@@ -243,3 +243,33 @@ print(d)
 ```plain
 flag{125631357777427553}
 ```
+
+### [Crypto-丢失的MD5](https://buuoj.cn/challenges#%E4%B8%A2%E5%A4%B1%E7%9A%84MD5)
+
+解压后得到一个 Python 程序
+
+```python
+import hashlib   
+for i in range(32,127):
+    for j in range(32,127):
+        for k in range(32,127):
+            m=hashlib.md5()
+            m.update('TASC'+chr(i)+'O3RJMV'+chr(j)+'WDJKX'+chr(k)+'ZM')
+            des=m.hexdigest()
+            if 'e9032' in des and 'da' in des and '911513' in des:
+                print des
+```
+
+根据语法特征可以发现这是 Python2 脚本,使用 `python2` 命令运行
+
+```shell
+┌──(hervey㉿Hervey)-[~/Downloads]
+└─$ python2 ./md5.py
+e9032994dabac08080091151380478a2
+```
+
+可以得到 flag 为
+
+```plain
+flag{e9032994dabac08080091151380478a2}
+```
