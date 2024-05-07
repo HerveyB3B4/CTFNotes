@@ -187,3 +187,59 @@ felhaagv{ewtehtehfilnakgw}
 ```plain
 flag{wethinkwehavetheflag}
 ```
+
+### [Crypto-RSA](https://buuoj.cn/challenges#RSA)
+
+打开文件后得到
+
+```plain
+在一次RSA密钥对生成中，假设p=473398607161，q=4511491，e=17
+求解出d作为flga提交
+```
+
+回顾 RSA 算法的密钥对生成过程
+
+$$
+\begin{align}
+& N = p \times q & p, q 均为质数\\
+& L = \varphi(N) = \varphi(p) \times \varphi(q) = lcm(p - 1, q - 1) & \varphi(n) 表示欧拉函数 \\
+& gcd(E, L) = 1  &  1 < E < L \\
+& E * D \equiv 1 (mod \space L) & 1 < D < L
+\end{align}
+$$
+
+题目给出了 $p, q, e$ ，我们可以推出 $d$ 的计算公式为
+
+$$
+\begin{align}
+& L = lcm(p - 1, q - 1) \\
+& D = E^{-1} (mod \space L) \\
+\end{align}
+$$
+
+其中 $E^{-1} (mod \space L)$ 代表 $E$ 在模 $L$ 意义下的乘法逆元
+
+由此，我们可以写出 python 脚本求解 $D$
+
+```python
+import gmpy2
+p = 473398607161
+q = 4511491
+e = 17
+d = int(gmpy2.invert(e,(p-1)*(q-1)))
+print(d)
+```
+
+运行得到 d
+
+```shell
+┌──(hervey㉿Hervey)-[/mnt/c/Users/hervey/Downloads]
+└─$ python3 ./dec.py
+125631357777427553
+```
+
+进而获得 flag
+
+```plain
+flag{125631357777427553}
+```
