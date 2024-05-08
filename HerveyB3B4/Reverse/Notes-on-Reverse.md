@@ -2395,3 +2395,314 @@ flag{e?65421110ba03099a1c039337}
 ```plain
 flag{e165421110ba03099a1c039337}
 ```
+### [Reverse-CrackRTF](https://buuoj.cn/challenges#CrackRTF)
+
+使用 DIE 查壳，发现是一个无壳 PE32 程序
+
+使用 IDA 打开，`Shift + F12` 进入 Strings 页面，可以发现如下字段
+
+![Reverse-CrackRTF-1.png](./Notes-on-Reverse/Reverse-CrackRTF-1.png)
+
+使用 `Ctrl + X` 查看交叉引用，定位到主校验程序
+
+```c
+int __cdecl main_0(int argc, const char **argv, const char **envp)
+{
+  DWORD v3; // eax
+  DWORD v4; // eax
+  char Str[260]; // [esp+4Ch] [ebp-310h] BYREF
+  int v7; // [esp+150h] [ebp-20Ch]
+  char String1[260]; // [esp+154h] [ebp-208h] BYREF
+  char Destination[260]; // [esp+258h] [ebp-104h] BYREF
+
+  memset(Destination, 0, sizeof(Destination));
+  memset(String1, 0, sizeof(String1));
+  v7 = 0;
+  printf("pls input the first passwd(1): ");
+  scanf("%s", Destination);
+  if ( strlen(Destination) != 6 )
+  {
+    printf("Must be 6 characters!\n");
+    ExitProcess(0);
+  }
+  v7 = atoi(Destination);
+  if ( v7 < 100000 )
+    ExitProcess(0);
+  strcat(Destination, "@DBApp");
+  v3 = strlen(Destination);
+  sub_40100A((BYTE *)Destination, v3, String1);
+  if ( !_strcmpi(String1, "6E32D0943418C2C33385BC35A1470250DD8923A9") )
+  {
+    printf("continue...\n\n");
+    printf("pls input the first passwd(2): ");
+    memset(Str, 0, sizeof(Str));
+    scanf("%s", Str);
+    if ( strlen(Str) != 6 )
+    {
+      printf("Must be 6 characters!\n");
+      ExitProcess(0);
+    }
+    strcat(Str, Destination);
+    memset(String1, 0, sizeof(String1));
+    v4 = strlen(Str);
+    sub_401019((BYTE *)Str, v4, String1);
+    if ( !_strcmpi("27019e688a4e62a649fd99cadaafdb4e", String1) )
+    {
+      if ( !(unsigned __int8)sub_40100F(Str) )
+      {
+        printf("Error!!\n");
+        ExitProcess(0);
+      }
+      printf("bye ~~\n");
+    }
+  }
+  return 0;
+}
+```
+
+发现程序要求先后输入两段 6 位数字，在其后接上 `@DBApp` 后，再分别使用 `sub_40100A()` 和 `sub_401019()` 函数进行处理，与目标字符串进行校验
+
+接下来我们分别破解这两层加密:
+
+#### 第一层加密
+
+```c
+// attributes: thunk
+int __cdecl sub_40100A(BYTE *pbData, DWORD dwDataLen, LPSTR lpString1)
+{
+  return sub_401230(pbData, dwDataLen, lpString1);
+}
+
+int __cdecl sub_401230(BYTE *pbData, DWORD dwDataLen, LPSTR lpString1)
+{
+  DWORD i; // [esp+4Ch] [ebp-28h]
+  CHAR String2[4]; // [esp+50h] [ebp-24h] BYREF
+  BYTE v6[20]; // [esp+54h] [ebp-20h] BYREF
+  DWORD pdwDataLen; // [esp+68h] [ebp-Ch] BYREF
+  HCRYPTHASH phHash; // [esp+6Ch] [ebp-8h] BYREF
+  HCRYPTPROV phProv; // [esp+70h] [ebp-4h] BYREF
+
+  if ( !CryptAcquireContextA(&phProv, 0, 0, 1u, 0xF0000000) )
+    return 0;
+  if ( CryptCreateHash(phProv, 0x8004u, 0, 0, &phHash) )
+  {
+    if ( CryptHashData(phHash, pbData, dwDataLen, 0) )
+    {
+      CryptGetHashParam(phHash, 2u, v6, &pdwDataLen, 0);
+      *lpString1 = 0;
+      for ( i = 0; i < pdwDataLen; ++i )
+      {
+        wsprintfA(String2, "%02X", v6[i]);
+        lstrcatA(lpString1, String2);
+      }
+      CryptDestroyHash(phHash);
+      CryptReleaseContext(phProv, 0);
+      return 1;
+    }
+    else
+    {
+      CryptDestroyHash(phHash);
+      CryptReleaseContext(phProv, 0);
+      return 0;
+    }
+  }
+  else
+  {
+    CryptReleaseContext(phProv, 0);
+    return 0;
+  }
+}
+```
+
+分析得知这是 Windows API 中的 SHA-1 加密函数，标识码为 `0x8004u`
+
+接下来使用如下 python 脚本进行爆破
+
+```python
+import hashlib
+end = "@DBApp"
+for i in range(100000, 999999):
+    tmp = str(i) + end
+    if hashlib.sha1(tmp.encode()).hexdigest() == "6e32d0943418c2c33385bc35a1470250dd8923a9":
+        print(str(i))
+```
+
+运行可以得到第一部分的密码
+
+```shell
+┌──(hervey㉿Hervey)-[~/Downloads]
+└─$ python crackRTF1.py
+123321
+```
+
+### 第二层加密
+
+```c
+// attributes: thunk
+int __cdecl sub_401019(BYTE *pbData, DWORD dwDataLen, LPSTR lpString1)
+{
+  return sub_401040(pbData, dwDataLen, lpString1);
+}
+
+int __cdecl sub_401040(BYTE *pbData, DWORD dwDataLen, LPSTR lpString1)
+{
+  DWORD i; // [esp+4Ch] [ebp-24h]
+  CHAR String2[4]; // [esp+50h] [ebp-20h] BYREF
+  BYTE v6[16]; // [esp+54h] [ebp-1Ch] BYREF
+  DWORD pdwDataLen; // [esp+64h] [ebp-Ch] BYREF
+  HCRYPTHASH phHash; // [esp+68h] [ebp-8h] BYREF
+  HCRYPTPROV phProv; // [esp+6Ch] [ebp-4h] BYREF
+
+  if ( !CryptAcquireContextA(&phProv, 0, 0, 1u, 0xF0000000) )
+    return 0;
+  if ( CryptCreateHash(phProv, 0x8003u, 0, 0, &phHash) )
+  {
+    if ( CryptHashData(phHash, pbData, dwDataLen, 0) )
+    {
+      CryptGetHashParam(phHash, 2u, v6, &pdwDataLen, 0);
+      *lpString1 = 0;
+      for ( i = 0; i < pdwDataLen; ++i )
+      {
+        wsprintfA(String2, "%02X", v6[i]);
+        lstrcatA(lpString1, String2);
+      }
+      CryptDestroyHash(phHash);
+      CryptReleaseContext(phProv, 0);
+      return 1;
+    }
+    else
+    {
+      CryptDestroyHash(phHash);
+      CryptReleaseContext(phProv, 0);
+      return 0;
+    }
+  }
+  else
+  {
+    CryptReleaseContext(phProv, 0);
+    return 0;
+  }
+}
+```
+
+分析得知这是 Windows API 中的 MD5 加密函数，标识码为 `0x8003u`
+
+把这段扔进 [cmd5](https://www.cmd5.org/) 中尝试解密，但是解不出来
+
+不过我们可以发现主程序里还有一个校验函数是 `sub_40100F()`
+
+```c
+// attributes: thunk
+int __cdecl sub_40100F(LPCSTR lpString)
+{
+  return sub_4014D0(lpString);
+}
+
+char __cdecl sub_4014D0(LPCSTR lpString)
+{
+  LPCVOID lpBuffer; // [esp+50h] [ebp-1Ch]
+  DWORD NumberOfBytesWritten; // [esp+58h] [ebp-14h] BYREF
+  DWORD nNumberOfBytesToWrite; // [esp+5Ch] [ebp-10h]
+  HGLOBAL hResData; // [esp+60h] [ebp-Ch]
+  HRSRC hResInfo; // [esp+64h] [ebp-8h]
+  HANDLE hFile; // [esp+68h] [ebp-4h]
+
+  hFile = 0;
+  hResData = 0;
+  nNumberOfBytesToWrite = 0;
+  NumberOfBytesWritten = 0;
+  hResInfo = FindResourceA(0, (LPCSTR)0x65, "AAA");
+  if ( !hResInfo )
+    return 0;
+  nNumberOfBytesToWrite = SizeofResource(0, hResInfo);
+  hResData = LoadResource(0, hResInfo);
+  if ( !hResData )
+    return 0;
+  lpBuffer = LockResource(hResData);
+  sub_401005(lpString, (int)lpBuffer, nNumberOfBytesToWrite);
+  hFile = CreateFileA("dbapp.rtf", 0x10000000u, 0, 0, 2u, 0x80u, 0);
+  if ( hFile == (HANDLE)-1 )
+    return 0;
+  if ( !WriteFile(hFile, lpBuffer, nNumberOfBytesToWrite, &NumberOfBytesWritten, 0) )
+    return 0;
+  CloseHandle(hFile);
+  return 1;
+}
+```
+
+发现这段程序从 `AAA` 读取一段资源，放入 `sub_401005()` 函数进行处理
+
+```c
+// attributes: thunk
+int __cdecl sub_401005(LPCSTR lpString, int a2, int a3)
+{
+  return sub_401420(lpString, a2, a3);
+}
+unsigned int __cdecl sub_401420(LPCSTR lpString, int a2, unsigned int a3)
+{
+  unsigned int result; // eax
+  unsigned int i; // [esp+4Ch] [ebp-Ch]
+  unsigned int v5; // [esp+54h] [ebp-4h]
+
+  v5 = lstrlenA(lpString);
+  for ( i = 0; ; ++i )
+  {
+    result = i;
+    if ( i >= a3 )
+      break;
+    *(_BYTE *)(i + a2) ^= lpString[i % v5];
+  }
+  return result;
+}
+```
+
+总算是找到一段能看懂的程序了，这是一个按位循环异或的程序
+
+所以 `sub_4014D0()` 函数的功能就是从 `AAA` 中的数据与输入的 6 位密码异或，然后存入 `dbapp.rtf` 的前 6 位，即 RTF 文件的文件头前六位 `7B 5C 72 74 66 31`
+
+使用 [Resource Hacker](https://www.angusj.com/resourcehacker/#download) 获取 `AAA` 的内容
+
+![Reverse-CrackRTF-2](./Notes-on-Reverse/Reverse-CrackRTF-2.png)
+
+由此我们可以写出解密脚本
+
+```python
+AAA = [0x05, 0x7D, 0x41, 0x15, 0x26, 0x01]
+rtf = [0x7B, 0x5C, 0x72, 0x74, 0x66, 0x31]
+flag = ''
+for i in range(len(AAA)):
+    flag += chr(AAA[i] ^ rtf[i])
+print(flag)
+```
+
+运行可以得到第二部分的密码
+
+```shell
+┌──(hervey㉿Hervey)-[~/Downloads]
+└─$ python crackRTF2.py
+~!3a@0
+```
+
+把两段密码输入程序
+
+```shell
+hervey@Hervey MINGW64 ~/Downloads
+$ ./d817b3ad-28c1-443a-bbca-eda65276bce9.exe
+pls input the first passwd(1): 123321
+continue...
+
+pls input the first passwd(2): ~!3a@0
+bye ~~
+```
+
+可以获得 `dbapp.rtf` 文件，打开后得到
+
+```plain
+Flag{N0_M0re_Free_Bugs}
+```
+
+进而获得 flag
+
+```plain
+flag{N0_M0re_Free_Bugs}
+```
