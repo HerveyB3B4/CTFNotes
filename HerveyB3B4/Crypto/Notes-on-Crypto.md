@@ -14,6 +14,23 @@ ciphey -- "Encrypted input"
 ciphey -t "Encrypted input"
 ```
 
+### 1.2  [FactorDB PyPI](https://pypi.org/project/factordb-python/)
+
+使用 `python3 -m pip install factordb-pycli` 安装 FactorDB
+
+使用方法:
+
+```shell
+factordb number
+factordb --json number
+```
+
+或者作为 Python 库调用
+
+```python
+from factordb.factordb import FactorDB
+```
+
 ## 2 练习记录
 
 ### [Crypto-一眼就解密](https://buuoj.cn/challenges#%E4%B8%80%E7%9C%BC%E5%B0%B1%E8%A7%A3%E5%AF%86)
@@ -272,4 +289,30 @@ e9032994dabac08080091151380478a2
 
 ```plain
 flag{e9032994dabac08080091151380478a2}
+```
+
+### [Crypto-Alice与Bob](https://buuoj.cn/challenges#Alice%E4%B8%8EBob)
+
+按照题目要求一步步来
+
+首先使用 FactorDB 进行质因数分解
+
+```shell
+┌──(hervey㉿Hervey)-[~]
+└─$ factordb 98554799767
+101999 966233
+```
+
+然后将这两个数字拼接起来放进 [CyberChef](https://gchq.github.io/CyberChef/#recipe=MD5()&input=MTAxOTk5OTY2MjMz) 里进行 MD5 加密
+
+得到
+
+```plain
+d450209323a847c8d01c6be47c81811a
+```
+
+进而获得 flag
+
+```plain
+flag{d450209323a847c8d01c6be47c81811a}
 ```
