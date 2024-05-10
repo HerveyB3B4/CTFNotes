@@ -139,10 +139,8 @@ flag{zs19900315}
 
 打开文件后得到
 
-```plain
-加密密文：afZ_r9VYfScOeO_UL^RWUc
-格式：flag{ }
-```
+> 加密密文：afZ_r9VYfScOeO_UL^RWUc \
+> 格式：flag{ }
 
 根据题目提示可以得知应该是凯撒加密变种，将已知字符一一对应
 
@@ -209,10 +207,8 @@ flag{wethinkwehavetheflag}
 
 打开文件后得到
 
-```plain
-在一次RSA密钥对生成中，假设p=473398607161，q=4511491，e=17
-求解出d作为flga提交
-```
+> 在一次RSA密钥对生成中，假设p=473398607161，q=4511491，e=17 \
+> 求解出d作为flga提交
 
 回顾 RSA 算法的密钥对生成过程
 
@@ -315,4 +311,67 @@ d450209323a847c8d01c6be47c81811a
 
 ```plain
 flag{d450209323a847c8d01c6be47c81811a}
+```
+
+### [Crypto-大帝的密码武器](https://buuoj.cn/challenges#%E5%A4%A7%E5%B8%9D%E7%9A%84%E5%AF%86%E7%A0%81%E6%AD%A6%E5%99%A8)
+
+下载后得到一个名为 `zip` 的文件，`binwalk` 后发现这是一个压缩文件，将其解压
+
+```shell
+┌──(hervey㉿Hervey)-[/mnt/c/Users/hervey/Downloads]
+└─$ binwalk zip
+
+DECIMAL       HEXADECIMAL     DESCRIPTION
+--------------------------------------------------------------------------------
+307           0x133           Zip archive data, at least v1.0 to extract, name: __MACOSX/
+1440          0x5A0           End of Zip archive, footer length: 22
+
+
+┌──(hervey㉿Hervey)-[/mnt/c/Users/hervey/Downloads]
+└─$ unzip zip
+Archive:  zip
+  inflating: 题目.txt
+   creating: __MACOSX/
+  inflating: __MACOSX/._题目.txt
+  inflating: 密文.txt
+  inflating: __MACOSX/._密文.txt
+```
+
+在 `题目.txt` 中可以看到题目
+
+> 公元前一百年，在罗马出生了一位对世界影响巨大的人物，他生前是罗马三巨头之一。他率先使用了一种简单的加密函，因此这种加密方法以他的名字命名。\
+> 以下密文被解开后可以获得一个有意义的单词：FRPHEVGL \
+> 你可以用这个相同的加密向量加密附件中的密文，作为答案进行提交。
+
+使用 Ciphey 试着解密一下这段密文
+
+```shell
+┌──(hervey㉿ZHW)-[/mnt/c/Users/zhwaa/Downloads]
+└─$ ciphey -- "FRPHEVGL"
+Possible plaintext: 'B~@lEU' (y/N):
+Possible plaintext: '/B?@XS' (y/N):
+Possible plaintext: 'SECURITY' (y/N): y
+╭─────────────────────────────────────────╮
+│ Formats used:                           │
+│    affine:                              │
+│     Key: a=1, b=13Plaintext: "SECURITY" │
+╰─────────────────────────────────────────╯
+```
+
+使用同样的方式加密 `密文.txt` 的文字
+
+```plain
+ComeChina
+```
+
+这里使用 [CyberChef](https://gchq.github.io/CyberChef/#recipe=ROT13(true,true,true,13)&input=Q29tZUNoaW5h) 选择 ROT13，可以得到
+
+```plain
+PbzrPuvan
+```
+
+进而获得 flag
+
+```plain
+flag{PbzrPuvan}
 ```
