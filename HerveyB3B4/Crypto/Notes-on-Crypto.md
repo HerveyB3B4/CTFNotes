@@ -440,3 +440,26 @@ print(m)
 ```plain
 flag{5577446633554466577768879988}
 ```
+
+### [Crypto-Windows系统密码](https://buuoj.cn/challenges#Windows%E7%B3%BB%E7%BB%9F%E5%AF%86%E7%A0%81)
+
+解压后得到一个 `pass.hash` 文件
+
+```hash
+Administrator:500:aad3b435b51404eeaad3b435b51404ee:31d6cfe0d16ae931b73c59d7e0c089c0:::
+ctf:1002:06af9108f2e1fecf144e2e8adef09efd:a7fcb22a88038f35a8f39d503e7f0062:::
+Guest:501:aad3b435b51404eeaad3b435b51404ee:31d6cfe0d16ae931b73c59d7e0c089c0:::
+SUPPORT_388945a0:1001:aad3b435b51404eeaad3b435b51404ee:bef14eee40dffbc345eeb3f58e290d56:::
+```
+
+在网上能够查到 Windows 用户密码的加密方法一般为 **LAN Manager (LM)** 和 **NT LAN Manager(NTLM)** 两种
+
+使用 [CMD5](https://cmd5.org/) 解密文件中的有效片段
+
+发现只有`a7fcb22a88038f35a8f39d503e7f0062` 解密后有意义，为 `good-luck`
+
+进而获得 flag
+
+```plain
+flag{good-luck}
+```
