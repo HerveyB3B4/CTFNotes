@@ -463,3 +463,23 @@ SUPPORT_388945a0:1001:aad3b435b51404eeaad3b435b51404ee:bef14eee40dffbc345eeb3f58
 ```plain
 flag{good-luck}
 ```
+
+### [Crypto-信息化时代的步伐](https://buuoj.cn/challenges#%E4%BF%A1%E6%81%AF%E5%8C%96%E6%97%B6%E4%BB%A3%E7%9A%84%E6%AD%A5%E4%BC%90)
+
+打开文件获得一串数字
+
+```plain
+606046152623600817831216121621196386
+```
+
+这是一段中文电码，用 [这个网站](https://www.qqxiuzi.cn/bianma/dianbao.php) 翻译(选择中文电报)得到原文为
+
+```plain
+计算机要从娃娃抓起
+```
+
+进而获得 flag
+
+```plain
+flag{计算机要从娃娃抓起}
+```
