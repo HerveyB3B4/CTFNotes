@@ -483,3 +483,29 @@ flag{good-luck}
 ```plain
 flag{计算机要从娃娃抓起}
 ```
+
+### [Crypto-凯撒？替换？呵呵!](https://buuoj.cn/challenges#%E5%87%AF%E6%92%92%EF%BC%9F%E6%9B%BF%E6%8D%A2%EF%BC%9F%E5%91%B5%E5%91%B5!)
+
+题目是一串无意义的字符串
+
+```plain
+MTHJ{CUBCGXGUGXWREXIPOYAOEYFIGXWRXCHTKHFCOHCFDUCGTXZOHIXOEOWMEHZO}
+```
+
+可以知道 flag 的格式是 `flag{}`
+
+可以使用 [quipqiup](https://quipqiup.com/) 进行爆破
+
+![Crypto-凯撒？替换？呵呵!-1](./Notes-on-Crypto/Crypto-凯撒？替换？呵呵!-1.png)
+
+得到明文为
+
+```plain
+flag substitution cipher decryption is always easy just like a piece of cake
+```
+
+进而获得 flag
+
+```plain
+flag{substitutioncipherdecryptionisalwayseasyjustlikeapieceofcake}
+```
