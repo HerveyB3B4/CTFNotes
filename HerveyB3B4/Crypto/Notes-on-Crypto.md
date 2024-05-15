@@ -509,3 +509,32 @@ flag substitution cipher decryption is always easy just like a piece of cake
 ```plain
 flag{substitutioncipherdecryptionisalwayseasyjustlikeapieceofcake}
 ```
+
+### [Crypto-萌萌哒的八戒](https://buuoj.cn/challenges#%E8%90%8C%E8%90%8C%E5%93%92%E7%9A%84%E5%85%AB%E6%88%92)
+
+下载文件后发现无法解压，用 `binwalk` 命令查看类型
+
+```shell
+┌──(hervey㉿Hervey)-[/mnt/c/Users/hervey/Downloads]
+└─$ binwalk ./76ad2edd-8ea9-4d01-805b-1dd6d525dee8.zip
+
+DECIMAL       HEXADECIMAL     DESCRIPTION
+--------------------------------------------------------------------------------
+0             0x0             RAR archive data, version 4.x, first volume type: MAIN_HEAD
+```
+
+发现是一个 RAR 文件,使用对应工具解压后得到一张图片
+
+![Crypto-萌萌哒的八戒-1](./Notes-on-Crypto/Crypto-萌萌哒的八戒-1.jpg)
+
+可以发现在图片最底下有一段猪圈密码，可以使用 [这个网站](https://www.metools.info/code/c90.html) 进行解密，得到明文
+
+```plain
+whenthepigwanttoeat
+```
+
+进而获得 flag
+
+```plain
+flag{whenthepigwanttoeat}
+```
