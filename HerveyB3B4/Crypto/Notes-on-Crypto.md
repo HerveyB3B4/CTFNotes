@@ -538,3 +538,19 @@ whenthepigwanttoeat
 ```plain
 flag{whenthepigwanttoeat}
 ```
+
+### [Crypto-权限获得第一步](https://buuoj.cn/challenges#%E6%9D%83%E9%99%90%E8%8E%B7%E5%BE%97%E7%AC%AC%E4%B8%80%E6%AD%A5)
+
+下载后得到一个 txt 文件
+
+```plain
+Administrator:500:806EDC27AA52E314AAD3B435B51404EE:F4AD50F57683D4260DFD48AA351A17A8:::
+```
+
+看起来格式和 Windows 中的 `pass.hash` 文件很像，使用 [CMD5](https://cmd5.org/) 进行爆破，得到 `3617656`
+
+进而获得 flag
+
+```plain
+flag{3617656}
+```
