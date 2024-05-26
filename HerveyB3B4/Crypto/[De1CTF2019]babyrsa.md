@@ -317,12 +317,14 @@ $$
 \end{cases}
 $$
 
-将其当作一个新的 RSA 加密
+将其当作一个新的 RSA 进行解密
+
+记 $D_1,D_2$ 分别为 $7$ 在模 $\varphi(q_1)， \varphi(q_2)$ 意义下的乘法逆元
 
 $$
 \begin{cases}
-    m ^ 2 \equiv m_1 ^ {inv(7, q_1 - 1)} (mod \space q_1) \\
-    m ^ 2 \equiv m_2 ^ {inv(7, q_2 - 1)} (mod \space q_2) \\
+    m ^ 2 \equiv m_1 ^ {D_1} (mod \space q_1) \\
+    m ^ 2 \equiv m_2 ^ {D_2} (mod \space q_2) \\
 \end{cases}
 $$
 
