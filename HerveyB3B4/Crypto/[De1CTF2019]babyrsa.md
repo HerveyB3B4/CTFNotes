@@ -4,7 +4,7 @@
 
 1. RSA加密解密
 2. [中国剩余定理](https://oi-wiki.org/math/number-theory/crt/)
-3. SymPy 和 gmpy2 中相关的函数
+3. SymPy 和 gmpy2 中相关函数的的使用
 
 ## 1 过程记录
 
